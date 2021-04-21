@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="1dae4d49-7950-4f0c-be4b-963e63074e57" name="MasterThesis">
+        <fileTransfer rootFolder="/home/ubuntu" accessType="SFTP" host="10.212.137.197" port="22" sshConfigId="c9fd1af1-e682-4900-9c41-823f75594c99" sshConfig="ubuntu@10.212.137.197:22 key" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
