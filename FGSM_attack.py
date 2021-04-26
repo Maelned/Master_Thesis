@@ -53,7 +53,7 @@ val_ds = val_datagen.flow_from_directory(
     follow_links=False)
 
 eps=2 / 255.0
-
+print("TAILLE DE DATASET :",len(val_ds))
 Y_pred = new_model.predict_generator(val_ds, steps = val_ds.samples)
 y_pred = np.argmax(Y_pred, axis=1)
 cm = confusion_matrix(val_ds.classes,y_pred)
@@ -98,39 +98,6 @@ for e in range(193):
         plt.imshow(im_adv[0] * 0.5 + 0.5)
         plt.show()
 
-
-
-
-    # if np.argmax(label,axis=1)[0] == test:
-    #     plt.figure(figsize=(5, 5))
-    #     fig = plt.imshow(image[0] * 0.5 + 0.5)
-    #     #plt.title(label=classes[np.argmax(label,axis=1)[0]],color = "green",fontsize=17)
-    #     fig.axes.get_xaxis().set_visible(False)
-    #     fig.axes.get_yaxis().set_visible(False)
-    #     plt.tight_layout()
-    #     plt.show()
-    #
-    #     plt.figure(figsize=(5, 5))
-    #     fig = plt.imshow(adv_noise[0] * 0.5 + 0.5)
-    #     #plt.title(label = "Noise added",fontsize=17)
-    #     fig.axes.get_xaxis().set_visible(False)
-    #     fig.axes.get_yaxis().set_visible(False)
-    #     plt.tight_layout()
-    #     plt.show()
-    #
-    #     plt.figure(figsize=(5, 5))
-    #     fig = plt.imshow(img_adv[0] * 0.5 + 0.5)
-    #
-    #     # if np.argmax(label,axis=1)[0] == np.argmax(new_model.predict(img_adv)):
-    #     #     plt.title(label =classes[np.argmax(new_model.predict(img_adv), axis=1)[0]],color = "green",fontsize=17)
-    #     # else:
-    #     #     plt.title(label =classes[np.argmax(new_model.predict(img_adv), axis=1)[0]],color = "red",fontsize=17)
-    #
-    #     fig.axes.get_xaxis().set_visible(False)
-    #     fig.axes.get_yaxis().set_visible(False)
-    #     plt.tight_layout()
-    #     plt.show()
-    #     test += 1
     prediction = new_model.predict(img_adv)
     preds.append(list(prediction[0]))
 
