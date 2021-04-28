@@ -1,9 +1,20 @@
 import argparse
 import numpy as np
-import random
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from FGSM_attack import create_adversarial_pattern
+import tensorflow as tf
+from art.estimators.classification import KerasClassifier
+from art.attacks.evasion import UniversalPerturbation
+import matplotlib.pyplot as plt
+tf.compat.v1.disable_eager_execution()
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--dataset', type=str, default='chestx')
+parser.add_argument('--model', type=str, default='inceptionv3')
+parser.add_argument('--norm', type=str, default='l2')
+parser.add_argument('--eps', type=float, default=0.04)
+parser.add_argument('--gpu', type=str, default='0')
+args = parser.parse_args()
 
 Validation_set = "E:\\DataSet\\ISIC2018\\ISIC_Validation\\"
 model = load_model("./Saves/Models/InceptionV3_Model_2.h5")
@@ -39,181 +50,76 @@ def calculate_data(dataset, norm=False, ):
             image = i[0]
             mean_l2_train += np.linalg.norm(image[:, :, 0].flatten(), ord=2)
             mean_inf_train += np.abs(image[:, :, 0].flatten()).max()
-
         mean_l2_train /= len(dataset)
         mean_inf_train /= len(dataset)
-
         if norm:
             return mean_l2_train, mean_inf_train
 
 
-def UniversalPerturbation(classifier, attacker, delta, attacker_targeted, attacker_eps, max_iter, eps, norm):
-    params = [classifier, attacker, delta, attacker_target]
-    noise = 0
-    fooling_rate = 0.0
-    nb_instances = len(x)
-    pred_y = classifier.predict(Validation_set, batch_size=1)
-    pred_y_max = np.argmax(pred_y, axis=1)
-    nb_iter = 0
 
-    while fooling_rate < 1. - delta and nb_iter < max_iter:
-        # Go through all the examples randomly
-        rnd_idx = random.sample(range(nb_instances), nb_instances)
+def get_fooling_rate(preds, preds_adv):
+    fooling_rate = np.sum(preds != preds_adv) / len(preds)
+    return fooling_rate
+print("calculation data")
 
-        # Go through the data set and compute the perturbation increments sequentially
-        for j, ex in enumerate(x[rnd_idx]):
-            x_i = ex[None, ...]
-
-            current_label = np.argmax(self.classifier.predict(x_i + noise)[0])
-            original_label = np.argmax(pred_y[rnd_idx][j])
-
-            if current_label == original_label:
-                # Compute adversarial perturbation
-                adv_xi = attacker.generate(x_i + noise)
-                new_label = np.argmax(self.classifier.predict(adv_xi)[0])
-
-                # If the class has changed, update v
-                if current_label != new_label:
-                    noise = adv_xi - x_i
-
-                    # Project on L_p ball
-                    noise = projection(noise, self.eps, self.norm)
-        nb_iter += 1
-
-        # Apply attack and clip
-        x_adv = x + noise
-        if hasattr(self.classifier, 'clip_values') and self.classifier.clip_values is not None:
-            clip_min, clip_max = self.classifier.clip_values
-            x_adv = np.clip(x_adv, clip_min, clip_max)
-
-        # Compute the error rate
-        y_adv = np.argmax(self.classifier.predict(x_adv, batch_size=1), axis=1)
-        fooling_rate = np.sum(pred_y_max != y_adv) / nb_instances
-    return 0
+# # Generate adversarial examples
 
 
-def generate(Inputs, Labels, classifier):
-    # Init universal perturbation
-    noise = 0
-    fooling_rate = 0.0
-    nb_instances = len(Inputs)
 
-    # Instantiate the middle attacker and get the predicted labels
-    pred_y = classifier.predict(Inputs, batch_size=1)
-    pred_y_max = np.argmax(pred_y, axis=1)
-
-    # Start to generate the adversarial examples
-    nb_iter = 0
-    while fooling_rate < 1. - delta and nb_iter < max_iter:
-        # Go through all the examples randomly
-        rnd_idx = random.sample(range(nb_instances), nb_instances)
-
-        # Go through the data set and compute the perturbation increments sequentially
-        for j, ex in enumerate(x[rnd_idx]):
-            x_i = ex[None, ...]
-
-            current_label = np.argmax(self.classifier.predict(x_i + noise)[0])
-            original_label = np.argmax(pred_y[rnd_idx][j])
-
-            if current_label == original_label:
-                # Compute adversarial perturbation
-                adv_xi = attacker.generate(x_i + noise)
-                new_label = np.argmax(self.classifier.predict(adv_xi)[0])
-
-                # If the class has changed, update v
-                if current_label != new_label:
-                    noise = adv_xi - x_i
-
-                    # Project on L_p ball
-                    noise = projection(noise, self.eps, self.norm)
-        nb_iter += 1
-
-        # Apply attack and clip
-        x_adv = x + noise
-        if hasattr(self.classifier, 'clip_values') and self.classifier.clip_values is not None:
-            clip_min, clip_max = self.classifier.clip_values
-            x_adv = np.clip(x_adv, clip_min, clip_max)
-
-        # Compute the error rate
-        y_adv = np.argmax(self.classifier.predict(x_adv, batch_size=1), axis=1)
-        fooling_rate = np.sum(pred_y_max != y_adv) / nb_instances
-
-    self.fooling_rate = fooling_rate
-    self.converged = nb_iter < self.max_iter
-    self.noise = noise
-
-    return x_adv
-
-
-def set_art(model, norm_str, eps, mean_l2_train, mean_linf_train):
-    classifier = KerasClassifier(model=model)
-    if norm_str == 'l2':
-        norm = 2
-        scaled_eps = mean_l2_train / 128.0 * eps
-    elif norm_str == 'linf':
-        norm = np.inf
-        scaled_eps = mean_linf_train / 128.0 * eps
-    return classifier, norm, scaled_eps
-
-
-mean_l2_train, mean_inf_train = calculate_data(val_ds, norm=True)
-norm = "l2"
-eps = 0.04
-
-
-classifier, norm, eps = set_art(
-    model=model,
-    norm_str=norm,
-    eps = eps,
-    mean_l2_train=mean_l2_train,
-    mean_linf_train=mean_inf_train)
+classifier = KerasClassifier(model=model, use_logits=False)
 
 adv_crafter = UniversalPerturbation(
-    model,
+    classifier=classifier,
     attacker='fgsm',
-    delta=0.000001,
     attacker_params={'targeted': False, 'eps': 0.0024},
-    max_iter=15,
-    eps=eps,
-    norm=norm)
+    max_iter=30,
+    batch_size = 1,
+    delta=0.000001)
+print("adv_crafter created")
+X_train = []
+predict = []
+Y_train = []
+for e in range(len(val_ds)):
+    i = next(val_ds)
+    image = i[0]
+    label = i[1]
 
-while fooling_rate < 1. - self.delta and nb_iter < self.max_iter:
-    # Go through all the examples randomly
-    rnd_idx = random.sample(range(nb_instances), nb_instances)
+    X_train.append(image[0])
+    Y_train.append(label[0])
 
-    # Go through the data set and compute the perturbation increments sequentially
-    for j, ex in enumerate(x[rnd_idx]):
-        x_i = ex[None, ...]
+    pred = model.predict(image)
 
-        current_label = np.argmax(self.classifier.predict(x_i + noise)[0])
-        original_label = np.argmax(pred_y[rnd_idx][j])
+    prediction = list(pred)
+    prediction = list(prediction)
+    prediction_final = list(max(prediction))
+    prediction_final = np.argmax(prediction_final)
+    predict.append(prediction_final)
 
-        if current_label == original_label:
-            # Compute adversarial perturbation
-            adv_xi = attacker.generate(x_i + noise)
-            new_label = np.argmax(self.classifier.predict(adv_xi)[0])
+print(predict)
+print("generate attack :")
+#X_train = np.array(X_train)
+print(np.shape(X_train))
+_ = adv_crafter.generate(X_train)
+prd = np.argmax(model.predict(val_ds,steps = val_ds.samples),axis = 1)
+print(prd)
+noise = adv_crafter.noise[0, :].astype(np.float32)
 
-            # If the class has changed, update v
-            if current_label != new_label:
-                noise = adv_xi - x_i
+# # Evaluate the ART classifier on adversarial examples
+print(np.shape(X_train))
+prediction = np.argmax(classifier.predict(X_train), axis = 1)
+print(prediction)
+X_train_adv = X_train + noise
 
-                # Project on L_p ball
-                noise = projection(noise, self.eps, self.norm)
-    nb_iter += 1
+plt.imshow(noise)
+plt.show()
 
-    # Apply attack and clip
-    x_adv = x + noise
-    if hasattr(self.classifier, 'clip_values') and self.classifier.clip_values is not None:
-        clip_min, clip_max = self.classifier.clip_values
-        x_adv = np.clip(x_adv, clip_min, clip_max)
+plt.imshow(noise[0])
+plt.show()
 
-    # Compute the error rate
-    y_adv = np.argmax(self.classifier.predict(x_adv, batch_size=1), axis=1)
-    fooling_rate = np.sum(pred_y_max != y_adv) / nb_instances
+prediction_adversarial = np.argmax(classifier.predict(X_train_adv), axis=1)
 
-self.fooling_rate = fooling_rate
-self.converged = nb_iter < self.max_iter
-self.noise = noise
-logger.info('Success rate of universal perturbation attack: %.2f%%', fooling_rate)
+rf_train = get_fooling_rate(preds=prediction, preds_adv=prediction_adversarial)
 
-return x_adv
+print(rf_train)
+
+print(prediction_adversarial)
