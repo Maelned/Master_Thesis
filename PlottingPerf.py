@@ -35,6 +35,7 @@ test_ds = test_datagen.flow_from_directory(
     follow_links=False)
 
 def plot_metrics(cm,title):
+    plot_confusion_matrix(cm,cm_plot_labels,title)
     macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(cm)
     print("Title : ", title)
     print("Accuracy :", Accuracy)
@@ -140,9 +141,6 @@ def plot_confusion_matrix(cm, classes,
 
 history = np.load('./Saves/Hitsory/history_InceptionV3_2.npy', allow_pickle='TRUE').item()
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2.pkl", "rb") as f:
-    cm_inception2 = pickle.load(f)
-
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel_5%25.pkl", "rb") as f:
     cm_attacked5 = pickle.load(f)
 
@@ -167,11 +165,11 @@ with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel_75%25.pkl", "rb") as f:
     cm_attacked75 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM.pkl", "rb") as f:
-    cm_Before_FGSM = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_2.pkl", "rb") as f:
+    cm_After_FGSM_2 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM.pkl", "rb") as f:
-    cm_After_FGSM = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM_2.pkl", "rb") as f:
+    cm_Before_FGSM_2 = pickle.load(f)
 
 cm_plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 
@@ -180,12 +178,12 @@ cm_plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 # plot_confusion_matrix(cm=cm_attacked10, classes=cm_plot_labels, title='Confusion Matrix Inception V3 with 10% labels modified')
 # plot_confusion_matrix(cm=cm_attacked15, classes=cm_plot_labels, title='Confusion Matrix Inception V3 with 15% labels modified')
 # plot_confusion_matrix(cm=cm_attacked20, classes=cm_plot_labels, title='Confusion Matrix Inception V3 with 20% labels modified')
-plot_confusion_matrix(cm=cm_attacked30, classes=cm_plot_labels,
-                      title='Confusion Matrix Inception V3 with 30% labels modified')
-plot_confusion_matrix(cm=cm_attacked45, classes=cm_plot_labels,
-                      title='Confusion Matrix Inception V3 with 45% labels modified')
-plot_confusion_matrix(cm=cm_attacked60, classes=cm_plot_labels,
-                      title='Confusion Matrix Inception V3 with 60% labels modified')
+# plot_confusion_matrix(cm=cm_attacked30, classes=cm_plot_labels,
+#                       title='Confusion Matrix Inception V3 with 30% labels modified')
+# plot_confusion_matrix(cm=cm_attacked45, classes=cm_plot_labels,
+#                       title='Confusion Matrix Inception V3 with 45% labels modified')
+# plot_confusion_matrix(cm=cm_attacked60, classes=cm_plot_labels,
+#                       title='Confusion Matrix Inception V3 with 60% labels modified')
 # plot_confusion_matrix(cm=cm_Before_FGSM, classes=cm_plot_labels, title='Confusion Matrix Inception V3 before FGSM attack')
 # plot_confusion_matrix(cm=cm_After_FGSM, classes=cm_plot_labels, title='Confusion Matrix Inception V3 after FGSM attack')
 
@@ -215,15 +213,17 @@ plt.show()
 
 Y_pred = model.predict_generator(test_ds, steps = test_ds.samples)
 y_pred = np.argmax(Y_pred, axis=1)
-cm = confusion_matrix(val_ds.classes,y_pred)
+cm_inception = confusion_matrix(test_ds.classes,y_pred)
 
+plot_metrics(cm_Before_FGSM_2,"Inception Before V3 FGSM")
+plot_metrics(cm_inception,"Inception V3")
+plot_metrics(cm_After_FGSM_2,"Inception V3 FGSM")
 
-plot_metrics(cm_inception2,"Inception V3")
-plot_metrics(cm_attacked5,"Inception V3 Attacked 5%")
-plot_metrics(cm_attacked10,"Inception V3 Attacked 10%")
-plot_metrics(cm_attacked15,"Inception V3 Attacked 15%")
-plot_metrics(cm_attacked20,"Inception V3 Attacked 20%")
-plot_metrics(cm_attacked30,"Inception V3 Attacked 30%")
-plot_metrics(cm_attacked45,"Inception V3 Attacked 45%")
-plot_metrics(cm_attacked60,"Inception V3 Attacked 60%")
-plot_metrics(cm_attacked75,"Inception V3 Attacked 75%")
+# plot_metrics(cm_attacked5,"Inception V3 Attacked 5%")
+# plot_metrics(cm_attacked10,"Inception V3 Attacked 10%")
+# plot_metrics(cm_attacked15,"Inception V3 Attacked 15%")
+# plot_metrics(cm_attacked20,"Inception V3 Attacked 20%")
+# plot_metrics(cm_attacked30,"Inception V3 Attacked 30%")
+# plot_metrics(cm_attacked45,"Inception V3 Attacked 45%")
+# plot_metrics(cm_attacked60,"Inception V3 Attacked 60%")
+# plot_metrics(cm_attacked75,"Inception V3 Attacked 75%")

@@ -161,7 +161,6 @@ accuracy_scr = accuracy_score(val_ds.classes, y_pred)
 
 print("ACCURACY SCORE = ",accuracy_scr)
 
-np.save('./pythonProject1/Saves/Hitsory/history_inceptionV3_2_AttackedModel_75%.npy', history.history)
 model1.save("./pythonProject1/Saves/Models/InceptionV3_2_AttackedModel_75%.h5")
 
 

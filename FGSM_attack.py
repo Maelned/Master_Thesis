@@ -7,8 +7,8 @@ import pickle
 import matplotlib.pyplot as plt
 import operator
 
-Validation_set = "E:\\DataSet\\ISIC2018\\ISIC_Validation\\"
-new_model = load_model("./Saves/Models/InceptionV3_Model_2.h5")
+Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
+new_model = load_model("./Saves/Models/InceptionV3.h5")
 
 loss_object = tf.keras.losses.CategoricalCrossentropy()
 
@@ -31,7 +31,7 @@ def create_adversarial_pattern(input_image, input_label):
 
         return signedGrad
 
-val_datagen = ImageDataGenerator(
+test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
     featurewise_center=False,  # set input mean to 0 over the dataset
     samplewise_center=False,  # set each sample mean to 0
@@ -40,8 +40,8 @@ val_datagen = ImageDataGenerator(
     zca_whitening=False,  # apply ZCA whitening
 )
 
-val_ds = val_datagen.flow_from_directory(
-    Validation_set,
+test_ds = test_datagen.flow_from_directory(
+    Test_set,
     target_size=(224, 224),
     color_mode="rgb",
     classes=None,
@@ -53,50 +53,40 @@ val_ds = val_datagen.flow_from_directory(
     follow_links=False)
 
 eps=2 / 255.0
-print("TAILLE DE DATASET :",len(val_ds))
-Y_pred = new_model.predict_generator(val_ds, steps = val_ds.samples)
+print("TAILLE DE DATASET :",len(test_ds))
+Y_pred = new_model.predict_generator(test_ds, steps = test_ds.samples)
 y_pred = np.argmax(Y_pred, axis=1)
-cm = confusion_matrix(val_ds.classes,y_pred)
+cm = confusion_matrix(test_ds.classes,y_pred)
 cm = np.around(cm,2)
 eps=2 / 255.0
 
 classes = ['actinic keratoses', 'basal cell carcinoma', 'benign keratosis-like lesions',
            'dermatofibroma', 'melanoma', 'melanocytic nevi', 'vascular lesions']
-batch=next(val_ds)  # returns the next batch of images and labels
 
-pred = new_model.predict(batch[0])
-img_adv = create_adversarial_pattern(batch[0],batch[1])
-pred_adv = new_model.predict(img_adv)
-print(pred_adv)
 preds = []
 test = 0
-for e in range(193):
-    eps = [0,0.01,0.1,0.15, 2/255.0]
-    i = next(val_ds)
+for e in range(len(test_ds)):
+    #eps = [0,0.01,0.1,0.15, 2/255.0]
+    i = next(test_ds)
     image = i[0]
     label = i[1]
     adv_noise = create_adversarial_pattern(image, label)
     # construct the image adversary
-    for ep in eps:
-        img_adv = (image + (adv_noise * ep)).numpy()
-        # return the image adversary to the calling function
-        true_label = classes[np.argmax(label, axis=1)[0]]
+    eps = 2/255.0
+    img_adv = (image + (adv_noise * eps)).numpy()
+    # return the image adversary to the calling function
+    true_label = classes[np.argmax(label, axis=1)[0]]
 
-        prediction = new_model.predict(img_adv)
-        prediction = list(prediction)
-        prediction = list(max(prediction))
-        confidence = max(prediction)
-
-        label2 = classes[prediction.index(confidence)]
-        noise = adv_noise * ep
-        im_adv = image + noise
-        im_adv = tf.clip_by_value(im_adv, -1, 1)
-        plt.title("Noise added with eps :%1.3f" %ep)
-        plt.imshow(noise[0])
-        plt.show()
-        plt.title("True label : " + true_label + "\nPredicted label and confidence :  %1.3f " %confidence +" "+ label2)
-        plt.imshow(im_adv[0] * 0.5 + 0.5)
-        plt.show()
+    # label2 = classes[prediction.index(confidence)]
+    # noise = adv_noise * ep
+    # im_adv = image + noise
+    # im_adv = tf.clip_by_value(im_adv, -1, 1)
+    # plt.title("Noise added with eps :%1.3f" %ep)
+    # plt.imshow(noise[0])
+    # plt.show()
+    # plt.title("True label : " + true_label + "\nPredicted label and confidence :  %1.3f " %confidence +" "+ label2)
+    # plt.imshow(im_adv[0] * 0.5 + 0.5)
+    # plt.show()
 
     prediction = new_model.predict(img_adv)
     preds.append(list(prediction[0]))
@@ -104,17 +94,16 @@ for e in range(193):
 print("sortie for")
 
 preds= list(preds)
-
 preds = np.argmax(preds, axis=1)
-cm_adv = confusion_matrix(val_ds.classes, preds)
+cm_adv = confusion_matrix(test_ds.classes, preds)
 cm_adv = np.around(cm_adv,2)
 print(cm_adv)
 
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM.pkl", 'wb') as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM_2.pkl", 'wb') as f:
     pickle.dump(cm, f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM.pkl", 'wb') as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_2.pkl", 'wb') as f:
     pickle.dump(cm_adv, f)
 
 

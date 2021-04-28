@@ -41,7 +41,7 @@ classes = ['actinic keratoses', 'basal cell carcinoma', 'benign keratosis-like l
 
 # different parameters for the model
 batch_size = 32
-nb_epochs = 30
+nb_epochs = 45
 
 # **************** Dataset Creation ********************
 
@@ -112,9 +112,9 @@ x = pre_trained_model.output
 x = layers.GlobalAveragePooling2D()(x)
 
 # add a fully-connected layer
-x = layers.Dropout(0.6)(x)
+x = layers.Dropout(0.4)(x)
 x = layers.Dense(units=512,kernel_regularizer= regularizers.l1(1e-3),activation='relu')(x)
-x = layers.Dropout(0.5)(x)
+x = layers.Dropout(0.3)(x)
 # and a fully connected output/classification layer
 x = layers.Dense(7,kernel_regularizer= regularizers.l1(1e-3),activation="softmax")(x)
 # x = layers.Activation(activation='softmax')(x)
@@ -127,7 +127,7 @@ learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
                                             factor=0.2,
                                             min_lr=0.00001)
 
-model.compile(optimizer=Adam(lr=3e-4), loss="categorical_crossentropy", metrics=[categorical_accuracy])
+model.compile(optimizer=Adam(lr=1e-3), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
 history = model.fit_generator(
     train_ds,
