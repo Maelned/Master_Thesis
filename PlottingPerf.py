@@ -2,8 +2,47 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import itertools
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from operator import truediv, add, mul
+from sklearn.metrics import confusion_matrix
 
+
+Dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\"
+Test_dir = Dataset + "ISIC2018V2\\Test\\"
+
+model = load_model("./Saves/Models/InceptionV3.h5")
+
+test_datagen = ImageDataGenerator(
+    rescale=1. / 255.,
+    featurewise_center=False,  # set input mean to 0 over the dataset
+    samplewise_center=False,  # set each sample mean to 0
+    featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    samplewise_std_normalization=False,  # divide each input by its std
+    zca_whitening=False,  # apply ZCA whitening
+)
+
+test_ds = test_datagen.flow_from_directory(
+    Test_dir,
+    target_size=(224, 224),
+    color_mode="rgb",
+    classes=None,
+    class_mode="categorical",
+    batch_size=1,
+    shuffle=False,
+    seed=False,
+    interpolation="bilinear",
+    follow_links=False)
+
+def plot_metrics(cm,title):
+    macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(cm)
+    print("Title : ", title)
+    print("Accuracy :", Accuracy)
+    print("Macro average recall : ", macro_avg_recall)
+    print("Specificity : ", Specificity)
+    print("Macro average precision : ", macro_avg_precision)
+    print("Macro average F1 : ", macro_avg_F1)
+    print("\n")
 
 def true_negative(confusion_matrix):
     TN = []
@@ -150,7 +189,6 @@ plot_confusion_matrix(cm=cm_attacked60, classes=cm_plot_labels,
 # plot_confusion_matrix(cm=cm_Before_FGSM, classes=cm_plot_labels, title='Confusion Matrix Inception V3 before FGSM attack')
 # plot_confusion_matrix(cm=cm_After_FGSM, classes=cm_plot_labels, title='Confusion Matrix Inception V3 after FGSM attack')
 
-
 loss_train = history['loss']
 loss_val = history['val_loss']
 
@@ -174,91 +212,18 @@ plt.ylabel('accuracy')
 plt.legend()
 plt.show()
 
-macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(
-    cm_inception2)
-print("Metrics for cm_inceptionV3 :")
-print("Accuracy :", Accuracy)
-print("Macro average recall : ", macro_avg_recall)
-print("Specificity : ", Specificity)
-print("Macro average precision : ", macro_avg_precision)
-print("Macro average F1 : ", macro_avg_F1)
-print("\n")
 
-macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(
-    cm_attacked5)
-print("metrics for the same model with 5% modified labels :")
-print("Accuracy :", Accuracy)
-print("Macro average recall : ", macro_avg_recall)
-print("Specificity : ", Specificity)
-print("Macro average precision : ", macro_avg_precision)
-print("Macro average F1 : ", macro_avg_F1)
-print("\n")
+Y_pred = model.predict_generator(test_ds, steps = test_ds.samples)
+y_pred = np.argmax(Y_pred, axis=1)
+cm = confusion_matrix(val_ds.classes,y_pred)
 
-macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(
-    cm_attacked10)
-print("metrics for the same model with 10% modified labels :")
-print("Accuracy :", Accuracy)
-print("Macro average recall : ", macro_avg_recall)
-print("Specificity : ", Specificity)
-print("Macro average precision : ", macro_avg_precision)
-print("Macro average F1 : ", macro_avg_F1)
-print("\n")
 
-macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(
-    cm_attacked15)
-print("metrics for the same model with 15% modified labels :")
-print("Accuracy :", Accuracy)
-print("Macro average recall : ", macro_avg_recall)
-print("Specificity : ", Specificity)
-print("Macro average precision : ", macro_avg_precision)
-print("Macro average F1 : ", macro_avg_F1)
-print("\n")
-
-macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(
-    cm_attacked20)
-print("metrics for the same model with 20% modified labels :")
-print("Accuracy :", Accuracy)
-print("Macro average recall : ", macro_avg_recall)
-print("Specificity : ", Specificity)
-print("Macro average precision : ", macro_avg_precision)
-print("Macro average F1 : ", macro_avg_F1)
-print("\n")
-
-macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(
-    cm_attacked30)
-print("metrics for the same model with 30% modified labels :")
-print("Accuracy :", Accuracy)
-print("Macro average recall : ", macro_avg_recall)
-print("Specificity : ", Specificity)
-print("Macro average precision : ", macro_avg_precision)
-print("Macro average F1 : ", macro_avg_F1)
-print("\n")
-
-macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(
-    cm_attacked45)
-print("metrics for the same model with 45% modified labels :")
-print("Accuracy :", Accuracy)
-print("Macro average recall : ", macro_avg_recall)
-print("Specificity : ", Specificity)
-print("Macro average precision : ", macro_avg_precision)
-print("Macro average F1 : ", macro_avg_F1)
-print("\n")
-
-macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(
-    cm_attacked60)
-print("metrics for the same model with 60% modified labels :")
-print("Accuracy :", Accuracy)
-print("Macro average recall : ", macro_avg_recall)
-print("Specificity : ", Specificity)
-print("Macro average precision : ", macro_avg_precision)
-print("Macro average F1 : ", macro_avg_F1)
-print("\n")
-
-macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(
-    cm_attacked75)
-print("metrics for the same model with 75% modified labels :")
-print("Accuracy :", Accuracy)
-print("Macro average recall : ", macro_avg_recall)
-print("Specificity : ", Specificity)
-print("Macro average precision : ", macro_avg_precision)
-print("Macro average F1 : ", macro_avg_F1)
+plot_metrics(cm_inception2,"Inception V3")
+plot_metrics(cm_attacked5,"Inception V3 Attacked 5%")
+plot_metrics(cm_attacked10,"Inception V3 Attacked 10%")
+plot_metrics(cm_attacked15,"Inception V3 Attacked 15%")
+plot_metrics(cm_attacked20,"Inception V3 Attacked 20%")
+plot_metrics(cm_attacked30,"Inception V3 Attacked 30%")
+plot_metrics(cm_attacked45,"Inception V3 Attacked 45%")
+plot_metrics(cm_attacked60,"Inception V3 Attacked 60%")
+plot_metrics(cm_attacked75,"Inception V3 Attacked 75%")
