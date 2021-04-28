@@ -110,10 +110,13 @@ prediction = np.argmax(classifier.predict(X_train), axis = 1)
 print(prediction)
 X_train_adv = X_train + noise
 
-plt.imshow(noise)
+plt.imshow(X_train[0] *0.5+0.5)
 plt.show()
 
-plt.imshow(noise[0])
+plt.imshow(noise * 0.5 + 0.5)
+plt.show()
+
+plt.imshow(X_train_adv[0] *0.5+0.5)
 plt.show()
 
 prediction_adversarial = np.argmax(classifier.predict(X_train_adv), axis=1)
