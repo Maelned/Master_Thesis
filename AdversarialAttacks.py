@@ -28,7 +28,7 @@ from keras.metrics import categorical_accuracy
 os.chdir("/home/ubuntu/Implementation_Mael")
 data_dir = "/mnt/data/Dataset/ModifiedLabels/75% nv - bkl/"
 
-dataset = "/mnt/data/Dataset/ISIC2018V2/"
+dataset = "/mnt/data/Dataset/ModifiedLabels/05 nv-bkl/"
 training_dataset = dataset + "Training/"
 validation_dataset = dataset + "Validation/"
 # different parameters for the model
