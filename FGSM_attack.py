@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import operator
 
 Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
-new_model = load_model("./Saves/Models/InceptionV3.h5")
+new_model = load_model("Saves/Models/InceptionV3_1.h5")
 
 loss_object = tf.keras.losses.CategoricalCrossentropy()
 
@@ -100,10 +100,10 @@ cm_adv = np.around(cm_adv,2)
 print(cm_adv)
 
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM_2.pkl", 'wb') as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM.pkl", 'wb') as f:
     pickle.dump(cm, f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_2.pkl", 'wb') as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM.pkl", 'wb') as f:
     pickle.dump(cm_adv, f)
 
 

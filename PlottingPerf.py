@@ -11,7 +11,7 @@ from sklearn.metrics import confusion_matrix
 Dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\"
 Test_dir = Dataset + "ISIC2018V2\\Test\\"
 
-model = load_model("./Saves/Models/InceptionV3.h5")
+model = load_model("Saves/Models/InceptionV3_1.h5")
 
 test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
@@ -139,7 +139,7 @@ def plot_confusion_matrix(cm, classes,
     plt.show()
 
 
-history = np.load('./Saves/Hitsory/history_InceptionV3_2.npy', allow_pickle='TRUE').item()
+history = np.load('Saves/Hitsory/history_InceptionV3_1.npy', allow_pickle='TRUE').item()
 
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel_5%25.pkl", "rb") as f:
     cm_attacked5 = pickle.load(f)
@@ -165,10 +165,10 @@ with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel_75%25.pkl", "rb") as f:
     cm_attacked75 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_2.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM.pkl", "rb") as f:
     cm_After_FGSM_2 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM_2.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM.pkl", "rb") as f:
     cm_Before_FGSM_2 = pickle.load(f)
 
 cm_plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']

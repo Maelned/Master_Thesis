@@ -28,6 +28,9 @@ from keras.metrics import categorical_accuracy
 os.chdir("/home/ubuntu/Implementation_Mael")
 data_dir = "/mnt/data/Dataset/ModifiedLabels/75% nv - bkl/"
 
+dataset = "/mnt/data/Dataset/ISIC2018V2/"
+training_dataset = dataset + "Training/"
+validation_dataset = dataset + "Validation/"
 # different parameters for the model
 batch_size = 32
 nb_epochs = 50
@@ -43,17 +46,15 @@ train_datagen = ImageDataGenerator(
     samplewise_std_normalization=False,  # divide each input by its std
     zca_whitening=False,  # apply ZCA whitening
     rotation_range=180,  # randomly rotate images in the range (degrees, 0 to 180)
-    zoom_range = 0.1, # Randomly zoom image
+    zoom_range=0.1,  # Randomly zoom image
     width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
     height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
     horizontal_flip=False,  # randomly flip images
     vertical_flip=False,
-    validation_split = 0.2
 )
 
 val_datagen = ImageDataGenerator(
     rescale=1. / 255.,
-    validation_split=0.2,
     featurewise_center=False,  # set input mean to 0 over the dataset
     samplewise_center=False,  # set each sample mean to 0
     featurewise_std_normalization=False,  # divide inputs by std of the dataset
@@ -62,7 +63,7 @@ val_datagen = ImageDataGenerator(
 )
 
 train_ds = train_datagen.flow_from_directory(
-    data_dir,
+    training_dataset,
     target_size=(224, 224),
     color_mode="rgb",
     classes=None,
@@ -70,12 +71,11 @@ train_ds = train_datagen.flow_from_directory(
     batch_size=batch_size,
     shuffle=True,
     seed=False,
-    subset="training",
     interpolation="bilinear",
     follow_links=False)
 
 val_ds = val_datagen.flow_from_directory(
-    data_dir,
+    validation_dataset,
     target_size=(224, 224),
     color_mode="rgb",
     classes=None,
@@ -83,9 +83,9 @@ val_ds = val_datagen.flow_from_directory(
     batch_size=batch_size,
     shuffle=False,
     seed=False,
-    subset="validation",
     interpolation="bilinear",
     follow_links=False)
+
 
 
 class_names = train_ds.class_indices
@@ -112,9 +112,9 @@ pre_trained_model = InceptionV3(input_shape=(224, 224, 3), include_top=False, we
 x = pre_trained_model.output
 x = layers.GlobalAveragePooling2D()(x)
 # add a fully-connected layer
-x = layers.Dropout(0.3)(x)
+x = layers.Dropout(0.6)(x)
 x = layers.Dense(units=512,kernel_regularizer=regularizers.l1(1e-3), activation='relu')(x)
-x = layers.Dropout(0.4)(x)
+x = layers.Dropout(0.5)(x)
 # and a fully connected output/classification layer
 x = layers.Dense(7, kernel_regularizer=regularizers.l1(1e-3))(x)
 x = layers.Activation(activation='softmax')(x)
@@ -129,13 +129,13 @@ learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
                                             min_lr=0.00001)
 
 
-model1.compile(optimizer=Adam(lr=5e-4), loss="categorical_crossentropy", metrics=[categorical_accuracy])
+model1.compile(optimizer=Adam(lr=7e-5), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
 history = model1.fit_generator(
     train_ds,
     steps_per_epoch=train_ds.samples // batch_size,
     validation_data=val_ds,
-    #validation_steps=val_ds.samples // batch_size,
+    validation_steps=val_ds.samples // batch_size,
     epochs=nb_epochs,
     initial_epoch=0,
     verbose=2,

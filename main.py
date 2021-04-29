@@ -41,7 +41,7 @@ classes = ['actinic keratoses', 'basal cell carcinoma', 'benign keratosis-like l
 
 # different parameters for the model
 batch_size = 32
-nb_epochs = 45
+nb_epochs = 50
 
 # **************** Dataset Creation ********************
 
@@ -62,7 +62,6 @@ train_datagen = ImageDataGenerator(
 
 val_datagen = ImageDataGenerator(
     rescale=1. / 255.,
-    validation_split=0.2,
     featurewise_center=False,  # set input mean to 0 over the dataset
     samplewise_center=False,  # set each sample mean to 0
     featurewise_std_normalization=False,  # divide inputs by std of the dataset
@@ -112,9 +111,9 @@ x = pre_trained_model.output
 x = layers.GlobalAveragePooling2D()(x)
 
 # add a fully-connected layer
-x = layers.Dropout(0.4)(x)
+x = layers.Dropout(0.6)(x)
 x = layers.Dense(units=512,kernel_regularizer= regularizers.l1(1e-3),activation='relu')(x)
-x = layers.Dropout(0.3)(x)
+x = layers.Dropout(0.5)(x)
 # and a fully connected output/classification layer
 x = layers.Dense(7,kernel_regularizer= regularizers.l1(1e-3),activation="softmax")(x)
 # x = layers.Activation(activation='softmax')(x)
@@ -127,7 +126,7 @@ learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
                                             factor=0.2,
                                             min_lr=0.00001)
 
-model.compile(optimizer=Adam(lr=1e-3), loss="categorical_crossentropy", metrics=[categorical_accuracy])
+model.compile(optimizer=Adam(lr=7e-5), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
 history = model.fit_generator(
     train_ds,
@@ -152,5 +151,5 @@ accuracy_scr = accuracy_score(val_ds.classes, y_pred)
 
 print("ACCURACY SCORE = ", accuracy_scr)
 
-np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3.npy', history.history)
-model.save("./pythonProject1/Saves/Models/InceptionV3.h5")
+np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3_1.npy', history.history)
+model.save("./pythonProject1/Saves/Models/InceptionV3_1.h5")
