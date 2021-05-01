@@ -171,17 +171,6 @@ with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_1
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_20.pkl", "rb") as f:
     cm_attacked20 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel_30%25.pkl", "rb") as f:
-    cm_attacked30 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel_45%25.pkl", "rb") as f:
-    cm_attacked45 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel_60%25.pkl", "rb") as f:
-    cm_attacked60 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_2_AttackedModel_75%25.pkl", "rb") as f:
-    cm_attacked75 = pickle.load(f)
 
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM.pkl", "rb") as f:
     cm_After_FGSM_2 = pickle.load(f)

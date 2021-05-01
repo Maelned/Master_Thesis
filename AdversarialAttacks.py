@@ -81,7 +81,7 @@ val_ds = val_datagen.flow_from_directory(
     classes=None,
     class_mode="categorical",
     batch_size=batch_size,
-    shuffle=False,
+    shuffle=True,
     seed=False,
     interpolation="bilinear",
     follow_links=False)
@@ -148,7 +148,7 @@ learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
                                             min_lr=0.00001)
 
 
-model.compile(optimizer=Adam(lr=3e-4), loss="categorical_crossentropy", metrics=[categorical_accuracy])
+model.compile(optimizer=Adam(lr=1e-4), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
 history = model.fit_generator(
     train_ds,
@@ -180,6 +180,5 @@ accuracy_scr = accuracy_score(test_ds.classes, y_pred)
 
 print("ACCURACY SCORE = ",accuracy_scr)
 
-#model.save("./pythonProject1/Saves/Models/InceptionV3_AttackedModel_05.h5")
 
 
