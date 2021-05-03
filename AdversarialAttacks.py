@@ -14,7 +14,7 @@ from keras.optimizers import RMSprop, SGD, Adam
 from keras.callbacks import ReduceLROnPlateau
 from sklearn.metrics import accuracy_score
 from keras.metrics import categorical_accuracy
-
+from os import listdir
 
 # gpus = tf.config.list_physical_devices('GPU')
 # print("GPU DISPO : ",gpus)
@@ -26,8 +26,8 @@ from keras.metrics import categorical_accuracy
 # print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
 
 os.chdir("/home/ubuntu/Implementation_Mael")
-
 dataset = "/mnt/data/Dataset/ModifiedLabels/05 nv-bkl/"
+
 training_dataset = dataset + "Training/"
 validation_dataset = dataset + "Validation/"
 test_dataset = dataset + "Test/"
@@ -171,7 +171,6 @@ Y_pred = model.predict_generator(test_ds, steps = test_ds.samples)
 y_pred = np.argmax(Y_pred, axis=1)
 
 cm = confusion_matrix(test_ds.classes, y_pred)
-
 
 with open("./pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AttackedModel_05.pkl", 'wb') as f:
     pickle.dump(cm, f)
