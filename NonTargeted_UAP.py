@@ -17,7 +17,7 @@ parser.add_argument('--gpu', type=str, default='0')
 args = parser.parse_args()
 
 Validation_set = "E:\\DataSet\\ISIC2018\\ISIC_Validation\\"
-model = load_model("./Saves/Models/InceptionV3_Model_2.h5")
+model = load_model("./Saves/Models/InceptionV3.h5")
 
 val_datagen = ImageDataGenerator(
     rescale=1. / 255.,

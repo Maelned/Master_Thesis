@@ -14,7 +14,7 @@ from keras.optimizers import RMSprop, SGD, Adam
 from keras.callbacks import ReduceLROnPlateau
 from sklearn.metrics import accuracy_score
 from keras.metrics import categorical_accuracy
-
+from os import listdir
 
 # gpus = tf.config.list_physical_devices('GPU')
 # print("GPU DISPO : ",gpus)
@@ -26,14 +26,14 @@ from keras.metrics import categorical_accuracy
 # print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
 
 os.chdir("/home/ubuntu/Implementation_Mael")
-data_dir = "/mnt/data/Dataset/ModifiedLabels/75% nv - bkl/"
-
 dataset = "/mnt/data/Dataset/ModifiedLabels/05 nv-bkl/"
+
 training_dataset = dataset + "Training/"
 validation_dataset = dataset + "Validation/"
+test_dataset = dataset + "Test/"
 # different parameters for the model
-batch_size = 32
-nb_epochs = 50
+batch_size = 64
+nb_epochs = 35
 
 
 # **************** Dataset Creation ********************
@@ -81,11 +81,31 @@ val_ds = val_datagen.flow_from_directory(
     classes=None,
     class_mode="categorical",
     batch_size=batch_size,
-    shuffle=False,
+    shuffle=True,
     seed=False,
     interpolation="bilinear",
     follow_links=False)
 
+test_datagen = ImageDataGenerator(
+    rescale=1. / 255.,
+    featurewise_center=False,  # set input mean to 0 over the dataset
+    samplewise_center=False,  # set each sample mean to 0
+    featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    samplewise_std_normalization=False,  # divide each input by its std
+    zca_whitening=False,  # apply ZCA whitening
+)
+
+test_ds = test_datagen.flow_from_directory(
+    test_dataset,
+    target_size=(224, 224),
+    color_mode="rgb",
+    classes=None,
+    class_mode="categorical",
+    batch_size=1,
+    shuffle=False,
+    seed=False,
+    interpolation="bilinear",
+    follow_links=False)
 
 
 class_names = train_ds.class_indices
@@ -103,7 +123,6 @@ class_weights = {i: class_weights[i] for i in range(7)}
 
 
 pre_trained_model = InceptionV3(input_shape=(224, 224, 3), include_top=False, weights="imagenet")
-#pre_trained_model = VGG16(include_top = False, input_shape=(224,224,3), weights="imagenet")
 
 #for layer in pre_trained_model.layers:
  #   layer.trainable = False
@@ -112,14 +131,14 @@ pre_trained_model = InceptionV3(input_shape=(224, 224, 3), include_top=False, we
 x = pre_trained_model.output
 x = layers.GlobalAveragePooling2D()(x)
 # add a fully-connected layer
-x = layers.Dropout(0.6)(x)
+x = layers.Dropout(0.4)(x)
 x = layers.Dense(units=512,kernel_regularizer=regularizers.l1(1e-3), activation='relu')(x)
-x = layers.Dropout(0.5)(x)
+x = layers.Dropout(0.4)(x)
 # and a fully connected output/classification layer
 x = layers.Dense(7, kernel_regularizer=regularizers.l1(1e-3))(x)
 x = layers.Activation(activation='softmax')(x)
 # create the full network so we can train on it
-model1 = Model(pre_trained_model.input, x)
+model = Model(pre_trained_model.input, x)
 
 
 learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
@@ -129,9 +148,9 @@ learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
                                             min_lr=0.00001)
 
 
-model1.compile(optimizer=Adam(lr=7e-5), loss="categorical_crossentropy", metrics=[categorical_accuracy])
+model.compile(optimizer=Adam(lr=1e-4), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
-history = model1.fit_generator(
+history = model.fit_generator(
     train_ds,
     steps_per_epoch=train_ds.samples // batch_size,
     validation_data=val_ds,
@@ -146,21 +165,19 @@ history = model1.fit_generator(
 
 
 # ******************* Printing Confusion Matrix ***************
-model1.evaluate_generator(val_ds,val_ds.samples // batch_size, verbose = 2)
+model.evaluate_generator(val_ds,val_ds.samples // batch_size, verbose = 2)
 
-Y_pred = model1.predict_generator(val_ds, steps = val_ds.samples / batch_size)
+Y_pred = model.predict_generator(test_ds, steps = test_ds.samples)
 y_pred = np.argmax(Y_pred, axis=1)
 
-cm = confusion_matrix(val_ds.classes, y_pred)
+cm = confusion_matrix(test_ds.classes, y_pred)
 
-
-with open("./pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_2_AttackedModel_75%.pkl", 'wb') as f:
+with open("./pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AttackedModel_05.pkl", 'wb') as f:
     pickle.dump(cm, f)
 
-accuracy_scr = accuracy_score(val_ds.classes, y_pred)
+accuracy_scr = accuracy_score(test_ds.classes, y_pred)
 
 print("ACCURACY SCORE = ",accuracy_scr)
 
-model1.save("./pythonProject1/Saves/Models/InceptionV3_2_AttackedModel_75%.h5")
 
 

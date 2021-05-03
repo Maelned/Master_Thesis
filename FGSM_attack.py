@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import operator
 
 Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
-new_model = load_model("Saves/Models/InceptionV3_1.h5")
+new_model = load_model("Saves/Models/InceptionV3.h5")
 
 loss_object = tf.keras.losses.CategoricalCrossentropy()
 
