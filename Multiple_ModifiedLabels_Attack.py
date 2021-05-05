@@ -45,7 +45,7 @@ learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
 
 model.compile(optimizer=Adam(lr=1e-4), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
-dataset = "/mnt/data/Dataset/ModifiedLabels/"
+dataset = "/mnt/data/Dataset/ModifiedLabelsV3/"
 
 experiment = [f for f in listdir(dataset)]
 
@@ -158,7 +158,7 @@ for exp in experiment:
 
     cm = confusion_matrix(test_ds.classes, y_pred)
 
-    name_cm = "./pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AttackedModel_{}.pkl".format(exp).replace(" ", "")
+    name_cm = "./pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AttackedModel_{}_3.pkl".format(exp).replace(" ", "")
 
     with open(name_cm, 'wb') as f:
         pickle.dump(cm, f)

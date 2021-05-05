@@ -34,22 +34,59 @@ test_ds = test_datagen.flow_from_directory(
     interpolation="bilinear",
     follow_links=False)
 
-def plot_graph(multiple_cm):
 
-    precision_tot,recall_tot,F1_tot,Specificity_tot,Accuracy_tot = []
+
+
+def plot_curves(history):
+
+    loss_train = history['loss']
+    loss_val = history['val_loss']
+    acc_train = history['categorical_accuracy']
+    acc_val = history['val_categorical_accuracy']
+    values = [[loss_train, loss_val], [acc_train, acc_val]]
+    epochs = range(len(loss_train))
+
+    for i in range(2):
+        for j in range(2):
+            if j :
+                plt.plot(epochs, values[i][j] , color = 'b', label = "Validation")
+            else:
+                plt.plot(epochs, values[i][j] , color = 'g', label = "Training")
+            plt.xlabel('Epochs')
+            plt.ylabel('Loss')
+            plt.legend()
+        plt.show()
+
+    # plt.plot(epochs, acc_train, 'g', label='Training acc')
+    # plt.plot(epochs, acc_val, 'b', label='validation accuracy')
+    # plt.xlabel('Epochs')
+    # plt.ylabel('accuracy')
+    # plt.legend()
+    # plt.show()
+
+
+def plot_graph(multiple_cm):
+    experiment = [5,10,15,20,30,45,60]
+    precision_tot,recall_tot,F1_tot,Specificity_tot,Accuracy_tot = [],[],[],[],[]
     for i in multiple_cm:
+        plot_metrics(i,"No title",False,False,True)
         macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(i)
         precision_tot.append(macro_avg_precision)
         recall_tot.append( macro_avg_recall)
         F1_tot.append(macro_avg_F1)
         Specificity_tot.append(Specificity)
         Accuracy_tot.append(Accuracy)
+    plt.plot(experiment,precision_tot,label = "precision")
+    plt.plot(experiment, recall_tot, label="recall")
+    plt.plot(experiment, F1_tot, label="F1-score")
+    plt.plot(experiment, Specificity_tot, label="Specificity")
+    plt.plot(experiment, Accuracy_tot, label="Accuracy")
+    plt.xlabel("Different experiement")
+    plt.ylabel("Percentage")
+    plt.legend()
+    plt.show()
 
-
-
-
-
-def plot_metrics(cm,title,plot_cm,verbose):
+def plot_metrics(cm,title,plot_cm,verbose,Attack):
     if plot_cm:
         plot_confusion_matrix(cm,cm_plot_labels,title)
     macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(cm)
@@ -61,6 +98,9 @@ def plot_metrics(cm,title,plot_cm,verbose):
         print("Macro average precision : ", macro_avg_precision)
         print("Macro average F1 : ", macro_avg_F1)
         print("\n")
+    if Attack:
+        Fooling_rate = 1 - Accuracy
+        print("Fooling rate : ",Fooling_rate)
 
 
 def true_negative(confusion_matrix):
@@ -159,65 +199,76 @@ def plot_confusion_matrix(cm, classes,
 
 history = np.load('Saves/Hitsory/history_InceptionV3.npy', allow_pickle='TRUE').item()
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_05.pkl", "rb") as f:
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AttackedModel_05nv-bkl_3.pkl", "rb") as f:
     cm_attacked5 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_10.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_10nv-bkl_3.pkl", "rb") as f:
     cm_attacked10 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_15.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_15nv-bkl_3.pkl", "rb") as f:
     cm_attacked15 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_20.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_20nv-bkl_3.pkl", "rb") as f:
     cm_attacked20 = pickle.load(f)
 
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_30nv-bkl_3.pkl", "rb") as f:
+    cm_attacked30 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM.pkl", "rb") as f:
-    cm_After_FGSM_2 = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_45nv-bkl_3.pkl", "rb") as f:
+    cm_attacked45 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM.pkl", "rb") as f:
-    cm_Before_FGSM_2 = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_60nv-bkl_3.pkl", "rb") as f:
+    cm_attacked60 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.pkl", "rb") as f:
+    cm_FGSM_0 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.00784313725490196.pkl", "rb") as f:
+    cm_FGSM_0007 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.01.pkl", "rb") as f:
+    cm_FGSM_001 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.1.pkl", "rb") as f:
+    cm_FGSM_01 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.15.pkl", "rb") as f:
+    cm_FGSM_015 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM_InceptionV3_.pkl", "rb") as f:
+    cm_Before_FGSM = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3.pkl", "rb") as f:
+    cm_UAP = pickle.load(f)
 
 cm_plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 
 
-loss_train = history['loss']
-loss_val = history['val_loss']
-
-acc_train = history['categorical_accuracy']
-acc_val = history['val_categorical_accuracy']
-
-epochs = range(0, 35)
-plt.plot(epochs, loss_train, 'g', label='Training loss')
-plt.plot(epochs, loss_val, 'b', label='validation loss')
-plt.title('Training and Validation loss Inception V3')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
-
-plt.plot(epochs, acc_train, 'g', label='Training acc')
-plt.plot(epochs, acc_val, 'b', label='validation accuracy')
-plt.title('Training and Validation accuracy Inception V3')
-plt.xlabel('Epochs')
-plt.ylabel('accuracy')
-plt.legend()
-plt.show()
+plot_curves(history)
+# Y_pred = model.predict_generator(test_ds, steps = test_ds.samples)
+# y_pred = np.argmax(Y_pred, axis=1)
 
 
-Y_pred = model.predict_generator(test_ds, steps = test_ds.samples)
-y_pred = np.argmax(Y_pred, axis=1)
-cm_inception = confusion_matrix(test_ds.classes,y_pred)
+# cm_inception = confusion_matrix(test_ds.classes,y_pred)
 
 
-multi_cm = [cm_attacked5,cm_attacked10,cm_attacked15,cm_attacked20,cm_attacked30,cm_attacked45,cm_attacked60,cm_attacked75]
-plot_metrics(cm_inception,"Inception V3",True,True)
-plot_metrics(cm_Before_FGSM_2,"Inception Before V3 FGSM",True,True)
-plot_metrics(cm_After_FGSM_2,"Inception V3 FGSM",True,True)
-plot_metrics(cm_attacked5,"Inception V3 Attacked 5%",True,True)
-plot_metrics(cm_attacked10,"Inception V3 Attacked 10%",True,True)
-plot_metrics(cm_attacked15,"Inception V3 Attacked 15%",True,True)
-plot_metrics(cm_attacked20,"Inception V3 Attacked 20%",True,True)
+multi_cm = [cm_attacked5,cm_attacked10,cm_attacked15,cm_attacked20,cm_attacked30,cm_attacked45,cm_attacked60]
+plot_graph(multi_cm)
+
+# plot_metrics(cm_inception,"Inception V3",True,True,False)
+
+plot_metrics(cm_Before_FGSM,"Inception Before V3 FGSM",True,True,False)
+# plot_metrics(cm_FGSM_0,"Inception V3 FGSM epsilon 0",True,True,True)
+# plot_metrics(cm_FGSM_0007,"Inception V3 FGSM epsilon 0.007",True,True,True)
+# plot_metrics(cm_FGSM_001,"Inception V3 FGSM epsilon 0.01",True,True,True)
+# plot_metrics(cm_FGSM_01,"Inception V3 FGSM epsilon 0.1",True,True,True)
+# plot_metrics(cm_FGSM_015,"Inception V3 FGSM epsilon 0.15",True,True,True)
+plot_metrics(cm_UAP,"Inception V3 Non targeted UAP", True,True,True)
+# plot_metrics(cm_attacked5,"Inception V3 Attacked 5%",True,True)
+# plot_metrics(cm_attacked10,"Inception V3 Attacked 10%",True,True)
+# plot_metrics(cm_attacked15,"Inception V3 Attacked 15%",True,True)
+# plot_metrics(cm_attacked20,"Inception V3 Attacked 20%",True,True)
 # plot_metrics(cm_attacked30,"Inception V3 Attacked 30%")
 # plot_metrics(cm_attacked45,"Inception V3 Attacked 45%")
 # plot_metrics(cm_attacked60,"Inception V3 Attacked 60%")

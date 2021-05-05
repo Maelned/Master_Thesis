@@ -5,7 +5,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import tensorflow as tf
 from art.estimators.classification import KerasClassifier
 from art.attacks.evasion import UniversalPerturbation
-import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+import pickle
 tf.compat.v1.disable_eager_execution()
 
 parser = argparse.ArgumentParser()
@@ -16,10 +17,10 @@ parser.add_argument('--eps', type=float, default=0.04)
 parser.add_argument('--gpu', type=str, default='0')
 args = parser.parse_args()
 
-Validation_set = "E:\\DataSet\\ISIC2018\\ISIC_Validation\\"
+Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
 model = load_model("./Saves/Models/InceptionV3.h5")
 
-val_datagen = ImageDataGenerator(
+test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
     featurewise_center=False,  # set input mean to 0 over the dataset
     samplewise_center=False,  # set each sample mean to 0
@@ -28,8 +29,8 @@ val_datagen = ImageDataGenerator(
     zca_whitening=False,  # apply ZCA whitening
 )
 
-val_ds = val_datagen.flow_from_directory(
-    Validation_set,
+test_ds = test_datagen.flow_from_directory(
+    Test_set,
     target_size=(224, 224),
     color_mode="rgb",
     classes=None,
@@ -39,7 +40,6 @@ val_ds = val_datagen.flow_from_directory(
     seed=False,
     interpolation="bilinear",
     follow_links=False)
-
 
 def calculate_data(dataset, norm=False, ):
     if norm:
@@ -72,15 +72,15 @@ adv_crafter = UniversalPerturbation(
     classifier=classifier,
     attacker='fgsm',
     attacker_params={'targeted': False, 'eps': 0.0024},
-    max_iter=30,
+    max_iter=10,
     batch_size = 1,
     delta=0.000001)
 print("adv_crafter created")
 X_train = []
 predict = []
 Y_train = []
-for e in range(len(val_ds)):
-    i = next(val_ds)
+for e in range(len(test_ds)):
+    i = next(test_ds)
     image = i[0]
     label = i[1]
 
@@ -97,10 +97,11 @@ for e in range(len(val_ds)):
 
 print(predict)
 print("generate attack :")
-#X_train = np.array(X_train)
+X_train = np.array(X_train)
+Y_train = np.array(Y_train)
 print(np.shape(X_train))
-_ = adv_crafter.generate(X_train)
-prd = np.argmax(model.predict(val_ds,steps = val_ds.samples),axis = 1)
+_ = adv_crafter.generate(X_train,Y_train)
+prd = np.argmax(model.predict(test_ds,steps = test_ds.samples),axis = 1)
 print(prd)
 noise = adv_crafter.noise[0, :].astype(np.float32)
 
@@ -110,16 +111,14 @@ prediction = np.argmax(classifier.predict(X_train), axis = 1)
 print(prediction)
 X_train_adv = X_train + noise
 
-plt.imshow(X_train[0] *0.5+0.5)
-plt.show()
-
-plt.imshow(noise * 0.5 + 0.5)
-plt.show()
-
-plt.imshow(X_train_adv[0] *0.5+0.5)
-plt.show()
-
 prediction_adversarial = np.argmax(classifier.predict(X_train_adv), axis=1)
+
+cm_adv = confusion_matrix(test_ds.classes, prediction_adversarial)
+cm_adv = np.around(cm_adv, 2)
+print(cm_adv)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3.pkl", 'wb') as f:
+    pickle.dump(cm_adv, f)
 
 rf_train = get_fooling_rate(preds=prediction, preds_adv=prediction_adversarial)
 
