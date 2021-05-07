@@ -39,7 +39,7 @@ classes = ['actinic keratoses', 'basal cell carcinoma', 'benign keratosis-like l
 
 # different parameters for the model
 batch_size = 64
-nb_epochs = 35
+nb_epochs = 50
 
 # **************** Dataset Creation ********************
 
@@ -149,5 +149,5 @@ accuracy_scr = accuracy_score(val_ds.classes, y_pred)
 
 print("ACCURACY SCORE = ", accuracy_scr)
 
-np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3.npy', history.history)
-model.save("./pythonProject1/Saves/Models/InceptionV3.h5")
+np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3_Version2.npy', history.history)
+model.save("./pythonProject1/Saves/Models/InceptionV3_Version2.h5")

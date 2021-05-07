@@ -87,15 +87,7 @@ for e in range(len(test_ds)):
     X_train.append(image[0])
     Y_train.append(label[0])
 
-    pred = model.predict(image)
 
-    prediction = list(pred)
-    prediction = list(prediction)
-    prediction_final = list(max(prediction))
-    prediction_final = np.argmax(prediction_final)
-    predict.append(prediction_final)
-
-print(predict)
 print("generate attack :")
 X_train = np.array(X_train)
 Y_train = np.array(Y_train)

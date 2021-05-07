@@ -4,8 +4,8 @@ import pickle
 import itertools
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from operator import truediv, add, mul
-from sklearn.metrics import confusion_matrix
+from operator import truediv, add
+
 
 
 Dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\"
