@@ -9,7 +9,7 @@ import pickle
 tf.compat.v1.disable_eager_execution()
 
 Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
-new_model = load_model("Saves/Models/InceptionV3.h5")
+new_model = load_model("Saves/Models/InceptionV3_Version2.h5")
 
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
