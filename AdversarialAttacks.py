@@ -26,7 +26,7 @@ from os import listdir
 # print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
 
 os.chdir("/home/ubuntu/Implementation_Mael")
-dataset = "/mnt/data/Dataset/ModifiedLabels/05 nv-bkl/"
+dataset = "/mnt/data/Dataset/ModifiedLabelsV3/05 nv-bkl/"
 
 training_dataset = dataset + "Training/"
 validation_dataset = dataset + "Validation/"

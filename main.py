@@ -149,5 +149,5 @@ accuracy_scr = accuracy_score(val_ds.classes, y_pred)
 
 print("ACCURACY SCORE = ", accuracy_scr)
 
-np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3_Version2.npy', history.history)
-model.save("./pythonProject1/Saves/Models/InceptionV3_Version2.h5")
+np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3.npy', history.history)
+model.save("./pythonProject1/Saves/Models/InceptionV3.h5")
