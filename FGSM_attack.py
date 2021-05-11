@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 
 Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
 
-model_60fgsm = load_model("Saves/Models/InceptionV3_AdversarialTraining_60fgsm.h5")
+model_80fgsm = load_model("Saves/Models/InceptionV3_AdversarialTraining_80fgsm.h5")
 
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
-name_model = ["60fgsm"]
-models = [model_60fgsm]
+name_model = ["80fgsm"]
+models = [model_80fgsm]
 
 def create_adversarial_pattern(input_image,input_label,model):
     with tf.GradientTape() as tape:

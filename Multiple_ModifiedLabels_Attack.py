@@ -46,12 +46,12 @@ learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
 model.compile(optimizer=Adam(lr=1e-4), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
 # dataset = "/mnt/data/Dataset/Dataset_Adversarial_Samples/"
-dataset = "/mnt/data/Dataset/Dataset_Adversarial_Samples/80 fgsm/"
+dataset = "/home/ubuntu/Dataset/Dataset_Adversarial_Samples/full fgsm/"
 
 # experiment = [f for f in listdir(dataset)]
 
 
-print("Starting experiment 80 fgsm")
+print("Starting experiment full fgsm")
 current_exp = dataset
 training_dataset = current_exp + "/Training/"
 validation_dataset = current_exp + "/Validation/"
@@ -153,13 +153,13 @@ history = model.fit_generator(
 
 # ******************* Printing Confusion Matrix ***************
 model.evaluate_generator(val_ds,val_ds.samples // batch_size, verbose = 2)
-model.save("./pythonProject1/Saves/Models/InceptionV3_AdversarialTraining_80fgsm.h5")
+model.save("./pythonProject1/Saves/Models/InceptionV3_AdversarialTraining_fullfgsm.h5")
 Y_pred = model.predict_generator(test_ds, steps = test_ds.samples)
 y_pred = np.argmax(Y_pred, axis=1)
 
 cm = confusion_matrix(test_ds.classes, y_pred)
 
-name_cm = "./pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AdversarialTraining_80fgsm.pkl"
+name_cm = "./pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AdversarialTraining_fullfgsm.pkl"
 
 with open(name_cm, 'wb') as f:
     pickle.dump(cm, f)
@@ -167,7 +167,7 @@ with open(name_cm, 'wb') as f:
 accuracy_scr = accuracy_score(test_ds.classes, y_pred)
 print("ACCURACY SCORE = ",accuracy_scr)
 
-print("Experiment : 60fgsm DONE")
+print("Experiment : fullfgsm DONE")
 
 
 
