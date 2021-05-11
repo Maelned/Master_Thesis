@@ -33,9 +33,12 @@ Dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Da
 Dataset_ref = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\"
 
 eps = 2/255.0
-amount = [0.1,0.2,0.3,0.4,0.5]
+amount = [0.6,0.8,1]
 experiment = listdir(Dataset)
 experiment = sorted(experiment)
+print(experiment)
+del experiment[0:5]
+print(experiment)
 classes = ["akiec","bcc","bkl","df","mel","nv","vasc"]
 label = [[1,0,0,0,0,0,0],[0,1,0,0,0,0,0],[0,0,1,0,0,0,0],[0,0,0,1,0,0,0],[0,0,0,0,1,0,0],[0,0,0,0,0,1,0],[0,0,0,0,0,0,1]]
 set = ["\\Training\\","\\Validation\\"]

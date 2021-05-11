@@ -5,7 +5,7 @@ import itertools
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from operator import truediv, add
-
+from sklearn.metrics import confusion_matrix
 
 
 Dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\"
@@ -65,17 +65,17 @@ def plot_curves(history):
     # plt.show()
 
 
-def plot_graph(multiple_cm):
-    experiment = [5,10,15,20,30,45,60]
+def plot_graph(multiple_cm,title,experiment):
     precision_tot,recall_tot,F1_tot,Specificity_tot,Accuracy_tot = [],[],[],[],[]
     for i in multiple_cm:
-        plot_metrics(i,"No title",False,False,True)
+        plot_metrics(i,"No title",False,True,True)
         macro_avg_precision, macro_avg_recall, macro_avg_F1, Specificity, Accuracy = model_evaluation(i)
         precision_tot.append(macro_avg_precision)
         recall_tot.append( macro_avg_recall)
         F1_tot.append(macro_avg_F1)
         Specificity_tot.append(Specificity)
         Accuracy_tot.append(Accuracy)
+    plt.title(title)
     plt.plot(experiment,precision_tot,label = "precision")
     plt.plot(experiment, recall_tot, label="recall")
     plt.plot(experiment, F1_tot, label="F1-score")
@@ -200,76 +200,54 @@ def plot_confusion_matrix(cm, classes,
 history = np.load('Saves/Hitsory/history_InceptionV3.npy', allow_pickle='TRUE').item()
 
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AttackedModel_05nv-bkl_3.pkl", "rb") as f:
-    cm_attacked5 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_10nv-bkl_3.pkl", "rb") as f:
-    cm_attacked10 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_15nv-bkl_3.pkl", "rb") as f:
-    cm_attacked15 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_20nv-bkl_3.pkl", "rb") as f:
-    cm_attacked20 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_30nv-bkl_3.pkl", "rb") as f:
-    cm_attacked30 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_45nv-bkl_3.pkl", "rb") as f:
-    cm_attacked45 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_AttackedModel_60nv-bkl_3.pkl", "rb") as f:
-    cm_attacked60 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.pkl", "rb") as f:
-    cm_FGSM_0 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.00784313725490196.pkl", "rb") as f:
-    cm_FGSM_0007 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.01.pkl", "rb") as f:
-    cm_FGSM_001 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.1.pkl", "rb") as f:
-    cm_FGSM_01 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.15.pkl", "rb") as f:
-    cm_FGSM_015 = pickle.load(f)
-
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM_InceptionV3_.pkl", "rb") as f:
     cm_Before_FGSM = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.00784313725490196.pkl", "rb") as f:
+    cm_After_FGSM = pickle.load(f)
 
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3.pkl", "rb") as f:
     cm_UAP = pickle.load(f)
 
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AdversarialTraining_20fgsm.pkl", "rb") as f:
+    cm_Adversarial_Training_20 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AdversarialTraining_40fgsm.pkl", "rb") as f:
+    cm_Adversarial_Training_40 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AdversarialTraining_60fgsm.pkl.pkl", "rb") as f:
+    cm_Adversarial_Training_60 = pickle.load(f)
+
+
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_After_Adversarial_Training_20fgsm.pkl", "rb") as f:
+    cm_FGSM_Adversarial_Training_20 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_After_Adversarial_Training_40fgsm.pkl", "rb") as f:
+    cm_FGSM_Adversarial_Training_40 = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_After_Adversarial_Training_60fgsm.pkl", "rb") as f:
+    cm_FGSM_Adversarial_Training_60 = pickle.load(f)
+
 cm_plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 
+multi_cm_adversarial_retraining = [cm_Before_FGSM,
+                                   cm_Adversarial_Training_20,
+                                   cm_Adversarial_Training_40,
+                                   cm_Adversarial_Training_60]
+plot_graph(multi_cm_adversarial_retraining,"Adversarial retraining",[0,20,40,60])
+# multi_cm = [cm_attacked5, cm_attacked10, cm_attacked15, cm_attacked20, cm_attacked30, cm_attacked45, cm_attacked60]
+# plot_graph(multi_cm,"Attack modified labels",[5,10,15,20,30,45,60])
 
-plot_curves(history)
-# Y_pred = model.predict_generator(test_ds, steps = test_ds.samples)
-# y_pred = np.argmax(Y_pred, axis=1)
 
-
-# cm_inception = confusion_matrix(test_ds.classes,y_pred)
-
-
-multi_cm = [cm_attacked5,cm_attacked10,cm_attacked15,cm_attacked20,cm_attacked30,cm_attacked45,cm_attacked60]
-plot_graph(multi_cm)
+multi_cm_FGSM_adversarial_retraining = [cm_After_FGSM,
+                                        cm_FGSM_Adversarial_Training_20,
+                                        cm_FGSM_Adversarial_Training_40,
+                                        cm_FGSM_Adversarial_Training_60]
+plot_graph(multi_cm_FGSM_adversarial_retraining,"FGSM after adversarial retraining",[0,20,40,60])
 
 # plot_metrics(cm_inception,"Inception V3",True,True,False)
 
-plot_metrics(cm_Before_FGSM,"Inception Before V3 FGSM",True,True,False)
-# plot_metrics(cm_FGSM_0,"Inception V3 FGSM epsilon 0",True,True,True)
-# plot_metrics(cm_FGSM_0007,"Inception V3 FGSM epsilon 0.007",True,True,True)
-# plot_metrics(cm_FGSM_001,"Inception V3 FGSM epsilon 0.01",True,True,True)
-# plot_metrics(cm_FGSM_01,"Inception V3 FGSM epsilon 0.1",True,True,True)
-# plot_metrics(cm_FGSM_015,"Inception V3 FGSM epsilon 0.15",True,True,True)
-plot_metrics(cm_UAP,"Inception V3 Non targeted UAP", True,True,True)
-# plot_metrics(cm_attacked5,"Inception V3 Attacked 5%",True,True)
-# plot_metrics(cm_attacked10,"Inception V3 Attacked 10%",True,True)
-# plot_metrics(cm_attacked15,"Inception V3 Attacked 15%",True,True)
-# plot_metrics(cm_attacked20,"Inception V3 Attacked 20%",True,True)
-# plot_metrics(cm_attacked30,"Inception V3 Attacked 30%")
-# plot_metrics(cm_attacked45,"Inception V3 Attacked 45%")
-# plot_metrics(cm_attacked60,"Inception V3 Attacked 60%")
-# plot_metrics(cm_attacked75,"Inception V3 Attacked 75%")
+# plot_metrics(cm_Before_FGSM,"Inception Before V3 FGSM",True,True,False)
+# plot_metrics(cm_UAP,"Inception V3 Non targeted UAP", True,True,True)
+
