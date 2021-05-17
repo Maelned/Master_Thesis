@@ -2,14 +2,71 @@ import os, random
 import numpy as np
 from os import listdir
 import tensorflow as tf
-import cv2
 from tensorflow.keras.models import load_model
 from PIL import Image
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-new_model = load_model("Saves/Models/InceptionV3.h5")
+new_model = load_model("Saves/Models/InceptionV3_v3.h5")
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
+
+# Location of this program
+os.chdir("/home/ubuntu/Implementation_Mael")
+dataset = "/mnt/data/Dataset/ISIC2018V2/"
+training_dataset = dataset + "Training/"
+validation_dataset = dataset + "Validation/"
+batch_size = 32
+train_datagen = ImageDataGenerator(
+    rescale=1. / 255.,
+    featurewise_center=False,  # set input mean to 0 over the dataset
+    samplewise_center=False,  # set each sample mean to 0
+    featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    samplewise_std_normalization=False,  # divide each input by its std
+    zca_whitening=False,  # apply ZCA whitening
+    rotation_range=180,  # randomly rotate images in the range (degrees, 0 to 180)
+    zoom_range=0.1,  # Randomly zoom image
+    width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+    height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+    horizontal_flip=False,  # randomly flip images
+    vertical_flip=False,
+)
+
+val_datagen = ImageDataGenerator(
+    rescale=1. / 255.,
+    featurewise_center=False,  # set input mean to 0 over the dataset
+    samplewise_center=False,  # set each sample mean to 0
+    featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    samplewise_std_normalization=False,  # divide each input by its std
+    zca_whitening=False,  # apply ZCA whitening
+)
+
+train_ds = train_datagen.flow_from_directory(
+    training_dataset,
+    target_size=(299, 299),
+    color_mode="rgb",
+    classes=None,
+    class_mode="categorical",
+    batch_size=batch_size,
+    shuffle=True,
+    seed=False,
+    interpolation="bilinear",
+    follow_links=False)
+
+val_ds = val_datagen.flow_from_directory(
+    validation_dataset,
+    target_size=(299, 299),
+    color_mode="rgb",
+    classes=None,
+    class_mode="categorical",
+    batch_size=batch_size,
+    shuffle=True,
+    seed=False,
+    interpolation="bilinear",
+    follow_links=False)
+
+
+
+
 
 def create_adversarial_pattern(input_image,input_label):
     with tf.GradientTape() as tape:
@@ -60,9 +117,9 @@ for i in range(len(amount)):
 
             for fname in filenames:
 
-                current_img = tf.keras.preprocessing.image.load_img(os.path.join(current_dir,fname),target_size=(224,224))
+                current_img = tf.keras.preprocessing.image.load_img(os.path.join(current_dir,fname),target_size=(299,299))
                 current_img = tf.keras.preprocessing.image.img_to_array(current_img)
-                current_img = current_img.reshape([1, 224, 224, 3])
+                current_img = current_img.reshape([1, 299, 299, 3])
 
                 adv_noise = create_adversarial_pattern(current_img, current_label)
                 adv_img = (current_img + (adv_noise * eps))

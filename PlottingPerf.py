@@ -11,7 +11,7 @@ from sklearn.metrics import confusion_matrix
 Dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\"
 Test_dir = Dataset + "ISIC2018V2\\Test\\"
 
-model = load_model("Saves/Models/InceptionV3.h5")
+model = load_model("./Saves/Models/InceptionV3.h5")
 
 test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
@@ -200,54 +200,45 @@ def plot_confusion_matrix(cm, classes,
 history = np.load('Saves/Hitsory/history_InceptionV3.npy', allow_pickle='TRUE').item()
 
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM_InceptionV3_.pkl", "rb") as f:
-    cm_Before_FGSM = pickle.load(f)
+# with open("./Saves/ConfusionMatrixes/ConfusionMatrix_BeforeFGSM_InceptionV3_.pkl", "rb") as f:
+#     cm_Before_FGSM = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.00784313725490196.pkl", "rb") as f:
-    cm_After_FGSM = pickle.load(f)
+# with open("./Saves/ConfusionMatrixes/ConfusionMatrix_AfterFGSM_InceptionV3_0.00784313725490196.pkl", "rb") as f:
+#     cm_After_FGSM = pickle.load(f)
+#
+# with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3.pkl", "rb") as f:
+#     cm_UAP = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3.pkl", "rb") as f:
-    cm_UAP = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_V2_FGSM_Retrained_Model_InceptionV3_v3.pkl", "rb") as f:
+    cm_InceptionV3_v3 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AdversarialTraining_20fgsm.pkl", "rb") as f:
-    cm_Adversarial_Training_20 = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_V2_FGSM_Retrained_Model_Retrained_5epoch.pkl", "rb") as f:
+    cm_Retrained_5epoch = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AdversarialTraining_40fgsm.pkl", "rb") as f:
-    cm_Adversarial_Training_40 = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_V2_FGSM_Retrained_Model_Retrained_5epoch_second.pkl", "rb") as f:
+    cm_Retrained_5epoch_second = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_inceptionV3_AdversarialTraining_60fgsm.pkl.pkl", "rb") as f:
-    cm_Adversarial_Training_60 = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_V2_FGSM_Retrained_Model_Retrained_5epoch_third.pkl", "rb") as f:
+    cm_Retrained_5epoch_third = pickle.load(f)
 
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_V2_FGSM_Retrained_Model_Retrained_10epoch.pkl", "rb") as f:
+    cm_Retrained_10epoch = pickle.load(f)
 
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_V2_FGSM_Retrained_Model_Retrained_10epoch_second.pkl", "rb") as f:
+    cm_Retrained_10epoch_second = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_After_Adversarial_Training_20fgsm.pkl", "rb") as f:
-    cm_FGSM_Adversarial_Training_20 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_After_Adversarial_Training_40fgsm.pkl", "rb") as f:
-    cm_FGSM_Adversarial_Training_40 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_After_Adversarial_Training_60fgsm.pkl", "rb") as f:
-    cm_FGSM_Adversarial_Training_60 = pickle.load(f)
 
 cm_plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 
-multi_cm_adversarial_retraining = [cm_Before_FGSM,
-                                   cm_Adversarial_Training_20,
-                                   cm_Adversarial_Training_40,
-                                   cm_Adversarial_Training_60]
-plot_graph(multi_cm_adversarial_retraining,"Adversarial retraining",[0,20,40,60])
-# multi_cm = [cm_attacked5, cm_attacked10, cm_attacked15, cm_attacked20, cm_attacked30, cm_attacked45, cm_attacked60]
-# plot_graph(multi_cm,"Attack modified labels",[5,10,15,20,30,45,60])
 
-
-multi_cm_FGSM_adversarial_retraining = [cm_After_FGSM,
-                                        cm_FGSM_Adversarial_Training_20,
-                                        cm_FGSM_Adversarial_Training_40,
-                                        cm_FGSM_Adversarial_Training_60]
-plot_graph(multi_cm_FGSM_adversarial_retraining,"FGSM after adversarial retraining",[0,20,40,60])
+multi_cm_retrained = [cm_InceptionV3_v3,
+                      cm_Retrained_5epoch,
+                      cm_Retrained_5epoch_second,
+                      cm_Retrained_5epoch_third,
+                      cm_Retrained_10epoch,
+                      cm_Retrained_10epoch_second]
+plot_graph(multi_cm_retrained,"Labels modified",[0,5,10,15,20,25])
 
 # plot_metrics(cm_inception,"Inception V3",True,True,False)
-
 # plot_metrics(cm_Before_FGSM,"Inception Before V3 FGSM",True,True,False)
 # plot_metrics(cm_UAP,"Inception V3 Non targeted UAP", True,True,True)
-

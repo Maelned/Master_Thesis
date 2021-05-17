@@ -3,19 +3,23 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import confusion_matrix
-from art.attacks.evasion import FastGradientMethod
-from art.estimators.classification import KerasClassifier
 import pickle
 import matplotlib.pyplot as plt
 # tf.compat.v1.disable_eager_execution()
+dataset = "/home/ubuntu/Dataset/Dataset_Adversarial_Samples/Retraining_set/"
+Test_set = dataset + "Test/"
+# Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
+#
+Model_v4 = load_model("Saves/Models/InceptionV3_v4.h5")
+Retrained_1times = load_model("Saves/Models/Retrained_model_v4_5epoch_1times.h5")
+Retrained_2times = load_model("Saves/Models/Retrained_model_v4_5epoch_2times.h5")
+Retrained_3times = load_model("Saves/Models/Retrained_model_v4_5epoch_3times.h5")
+Retrained_4times = load_model("Saves/Models/Retrained_model_v4_5epoch_4times.h5")
+Retrained_5times = load_model("Saves/Models/Retrained_model_v4_5epoch_5times.h5")
 
-Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
-
-model_80fgsm = load_model("Saves/Models/InceptionV3_AdversarialTraining_80fgsm.h5")
-
+models = [Model_v4,Retrained_1times,Retrained_2times,Retrained_3times,Retrained_4times,Retrained_5times]
+name_model = ["0times","1times","2times","3times","4times","5times"]
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
-name_model = ["80fgsm"]
-models = [model_80fgsm]
 
 def create_adversarial_pattern(input_image,input_label,model):
     with tf.GradientTape() as tape:
@@ -46,7 +50,7 @@ test_datagen = ImageDataGenerator(
 
 test_ds = test_datagen.flow_from_directory(
     Test_set,
-    target_size=(224, 224),
+    target_size=(299, 299),
     color_mode="rgb",
     classes=None,
     class_mode="categorical",
@@ -61,16 +65,13 @@ test_ds = test_datagen.flow_from_directory(
 classes = ['actinic keratoses', 'basal cell carcinoma', 'benign keratosis-like lesions',
            'dermatofibroma', 'melanoma', 'melanocytic nevi', 'vascular lesions']
 
-
-eps = 2 / 255.0
-print("Epsilon : ", eps)
+eps = 2/255.0
 
 # attack = FastGradientMethod(estimator=classifier, eps=eps)
 # x_test_adv = attack.generate(x=X_train)
 # predictions = classifier.predict(x_test_adv)
 # accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(Y_train, axis=1)) / len(Y_train)
 # print("Accuracy on adversarial test examples: {}%".format(accuracy * 100)
-
 for model in models:
     preds = []
     for e in range(len(test_ds)):
@@ -91,15 +92,8 @@ for model in models:
     print(cm_adv)
     index_model = models.index(model)
     model_name = name_model[index_model]
-
-    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_After_Adversarial_Training_{}.pkl".format(model_name)
+    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v4_FGSM_Retrained_Model_{}.pkl".format(model_name)
     with open(name_cm, 'wb') as f:
         pickle.dump(cm_adv, f)
-
-
-
-
-
-
 
 

@@ -7,8 +7,8 @@ from keras.models import Model
 from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.utils import class_weight
-from keras.optimizers import Adam
-from keras.callbacks import ReduceLROnPlateau
+from keras.optimizers import Adam,SGD
+from keras.callbacks import LearningRateScheduler
 from sklearn.metrics import accuracy_score
 from keras.metrics import categorical_accuracy
 
@@ -38,7 +38,7 @@ classes = ['actinic keratoses', 'basal cell carcinoma', 'benign keratosis-like l
            'dermatofibroma', 'melanoma', 'melanocytic nevi', 'vascular lesions']
 
 # different parameters for the model
-batch_size = 64
+batch_size = 32
 nb_epochs = 50
 
 # **************** Dataset Creation ********************
@@ -69,7 +69,7 @@ val_datagen = ImageDataGenerator(
 
 train_ds = train_datagen.flow_from_directory(
     training_dataset,
-    target_size=(224, 224),
+    target_size=(299, 299),
     color_mode="rgb",
     classes=None,
     class_mode="categorical",
@@ -81,7 +81,7 @@ train_ds = train_datagen.flow_from_directory(
 
 val_ds = val_datagen.flow_from_directory(
     validation_dataset,
-    target_size=(224, 224),
+    target_size=(299, 299),
     color_mode="rgb",
     classes=None,
     class_mode="categorical",
@@ -98,7 +98,7 @@ class_weights = class_weight.compute_class_weight("balanced",
 class_weights = {i: class_weights[i] for i in range(7)}
 
 # **************** Model Creation (import the Inception V3 and perform transfer learning) ********************
-pre_trained_model = InceptionV3(input_shape=(224, 224, 3), include_top=False, weights="imagenet")
+pre_trained_model = InceptionV3(input_shape=(299, 299, 3), include_top=False, weights="imagenet")
 
 # for layer in pre_trained_model.layers:
 #   layer.trainable = False
@@ -108,23 +108,26 @@ pre_trained_model = InceptionV3(input_shape=(224, 224, 3), include_top=False, we
 x = pre_trained_model.output
 x = layers.GlobalAveragePooling2D()(x)
 
-# add a fully-connected layer
-x = layers.Dropout(0.4)(x)
-x = layers.Dense(units=512,kernel_regularizer= regularizers.l1(1e-3),activation='relu')(x)
-x = layers.Dropout(0.4)(x)
+# # add a fully-connected layer
+x = layers.Dropout(0.7)(x)
+# x = layers.Dense(units=512,kernel_regularizer= regularizers.l1(1e-3),activation='relu')(x)
+# x = layers.Dropout(0.5)(x)
 # and a fully connected output/classification layer
 x = layers.Dense(7,kernel_regularizer= regularizers.l1(1e-3),activation="softmax")(x)
 # x = layers.Activation(activation='softmax')(x)
 # create the full network so we can train on it
 model = Model(pre_trained_model.input, x)
 
-learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
-                                            patience=5,
-                                            verbose=1,
-                                            factor=0.2,
-                                            min_lr=0.00001)
+def scheduler(epoch, lr):
+  if epoch == 40:
+    return lr / 10
+  elif epoch == 45:
+    return lr / 10
+  else:
+    return lr
+learning_rate_reduction = LearningRateScheduler(scheduler,verbose=1)
 
-model.compile(optimizer=Adam(lr=1e-4), loss="categorical_crossentropy", metrics=[categorical_accuracy])
+model.compile(optimizer=SGD(lr=1e-3,momentum=0.9), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
 history = model.fit_generator(
     train_ds,
@@ -149,5 +152,5 @@ accuracy_scr = accuracy_score(val_ds.classes, y_pred)
 
 print("ACCURACY SCORE = ", accuracy_scr)
 
-np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3.npy', history.history)
-model.save("./pythonProject1/Saves/Models/InceptionV3.h5")
+np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3_v4.npy', history.history)
+model.save("./pythonProject1/Saves/Models/InceptionV3_v6.h5")
