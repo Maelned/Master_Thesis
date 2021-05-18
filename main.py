@@ -13,7 +13,10 @@ from sklearn.metrics import accuracy_score
 from keras.metrics import categorical_accuracy
 
 # ***************************** NEW CODE *********************************
-
+# configuration = tf.compat.v1.ConfigProto(device_count={"GPU": 0})
+# session = tf.compat.v1.Session(config=configuration)
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+# CUDA_VISIBLE_DEVICES=""
 physical_device = tf.config.experimental.list_physical_devices('GPU')
 print(f'Device found : {physical_device}')
 

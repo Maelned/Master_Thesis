@@ -63,7 +63,7 @@ def get_dataset(train_ds, val_ds):
     return train, val
 
 
-def adversarialTraining(train, val, amount,model):
+def adversarialTraining(train, val, amount):
     X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = [], [], [], []
 
     am_train = int(len(train) * amount)
@@ -86,7 +86,7 @@ def adversarialTraining(train, val, amount,model):
     for current_sample in random_samples_train:
         label = current_sample[1]
         image = current_sample[0]
-        adv_noise = create_adversarial_pattern(image, label,model)
+        adv_noise = create_adversarial_pattern(image, label,base_model)
         # construct the image adversary
         img_adv = (image + (adv_noise * 2/255))
         X_train_adv.append(img_adv[0])
@@ -95,7 +95,7 @@ def adversarialTraining(train, val, amount,model):
     for current_sample in random_samples_val:
         label = current_sample[1]
         image = current_sample[0]
-        adv_noise = create_adversarial_pattern(image, label,model)
+        adv_noise = create_adversarial_pattern(image, label,base_model)
         # construct the image adversary
         img_adv = (image + (adv_noise * 2 / 255))
         X_val_adv.append(img_adv[0])
@@ -195,7 +195,7 @@ for i in range(number_times):
         model = base_model
     else:
         model = load_model("./Saves/Models/Retrained_model_v1_5epoch_{}times.h5".format(i))
-    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.5, model)
+    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.5)
 
     X_train_adv = np.array([x for x in X_train_adv])
     Y_train_adv = np.array([x for x in Y_train_adv])
