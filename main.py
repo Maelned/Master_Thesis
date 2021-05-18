@@ -110,8 +110,8 @@ x = layers.GlobalAveragePooling2D()(x)
 
 # # add a fully-connected layer
 x = layers.Dropout(0.7)(x)
-# x = layers.Dense(units=512,kernel_regularizer= regularizers.l1(1e-3),activation='relu')(x)
-# x = layers.Dropout(0.5)(x)
+x = layers.Dense(units=512,kernel_regularizer= regularizers.l1(1e-3),activation='relu')(x)
+x = layers.Dropout(0.5)(x)
 # and a fully connected output/classification layer
 x = layers.Dense(7,kernel_regularizer= regularizers.l1(1e-3),activation="softmax")(x)
 # x = layers.Activation(activation='softmax')(x)
@@ -125,7 +125,7 @@ def scheduler(epoch, lr):
     return lr / 10
   else:
     return lr
-learning_rate_reduction = LearningRateScheduler(scheduler,verbose=1)
+learning_rate_reduction = LearningRateScheduler(scheduler)
 
 model.compile(optimizer=SGD(lr=1e-3,momentum=0.9), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
@@ -152,5 +152,5 @@ accuracy_scr = accuracy_score(val_ds.classes, y_pred)
 
 print("ACCURACY SCORE = ", accuracy_scr)
 
-np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3_v4.npy', history.history)
-model.save("./pythonProject1/Saves/Models/InceptionV3_v6.h5")
+np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3_v1.npy', history.history)
+model.save("./pythonProject1/Saves/Models/InceptionV3_v1.h5")
