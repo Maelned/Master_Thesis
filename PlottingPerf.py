@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 Dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\"
 Test_dir = Dataset + "ISIC2018V2\\Test\\"
 
-model = load_model("./Saves/Models/InceptionV3.h5")
+model = load_model("./Saves/Models/InceptionV3_v1.h5")
 
 test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
@@ -33,6 +33,12 @@ test_ds = test_datagen.flow_from_directory(
     interpolation="bilinear",
     follow_links=False)
 
+Y_pred = model.predict_generator(test_ds, steps=test_ds.samples)
+y_pred = np.argmax(Y_pred, axis=1)
+
+cm_inception = confusion_matrix(test_ds.classes, y_pred)
+cm_inception = np.around(cm_inception, 2)
+print(cm_inception)
 
 def plot_curves(history):
     loss_train = history['loss']
