@@ -25,7 +25,7 @@ number_times = 5
 nb_epochs = 5
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
-
+# new line
 def create_adversarial_pattern(input_image,input_label, model):
     with tf.GradientTape() as tape:
 
@@ -196,7 +196,6 @@ for i in range(number_times):
     else:
         model = load_model("./Saves/Models/Retrained_model_v1_5epoch_{}times.h5".format(i))
     X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.5)
-
     X_train_adv = np.array([x for x in X_train_adv])
     Y_train_adv = np.array([x for x in Y_train_adv])
     X_val_adv = np.array([x for x in X_val_adv])

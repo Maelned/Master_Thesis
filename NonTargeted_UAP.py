@@ -18,7 +18,7 @@ parser.add_argument('--gpu', type=str, default='0')
 args = parser.parse_args()
 
 Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
-model = load_model("./Saves/Models/InceptionV3.h5")
+model = load_model("./Saves/Models/Retrained_model_v6_5epoch_5times.h5")
 
 test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
@@ -31,7 +31,7 @@ test_datagen = ImageDataGenerator(
 
 test_ds = test_datagen.flow_from_directory(
     Test_set,
-    target_size=(224, 224),
+    target_size=(299, 299),
     color_mode="rgb",
     classes=None,
     class_mode="categorical",
@@ -109,7 +109,7 @@ cm_adv = confusion_matrix(test_ds.classes, prediction_adversarial)
 cm_adv = np.around(cm_adv, 2)
 print(cm_adv)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3.pkl", 'wb') as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_RetrainedModel_v6.pkl", 'wb') as f:
     pickle.dump(cm_adv, f)
 
 rf_train = get_fooling_rate(preds=prediction, preds_adv=prediction_adversarial)

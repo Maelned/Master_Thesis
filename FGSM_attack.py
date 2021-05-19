@@ -10,15 +10,18 @@ dataset = "/home/ubuntu/Dataset/Dataset_Adversarial_Samples/Retraining_set/"
 Test_set = dataset + "Test/"
 # Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
 #
-Model_v4 = load_model("Saves/Models/InceptionV3_v5.h5")
+Model_v1 = load_model("Saves/Models/InceptionV3_v1.h5")
+Model_v5 = load_model("Saves/Models/InceptionV3_v5.h5")
+Model_v6 = load_model("Saves/Models/InceptionV3_v6.h5")
 # Retrained_1times = load_model("Saves/Models/Retrained_model_v4_5epoch_1times.h5")
 # Retrained_2times = load_model("Saves/Models/Retrained_model_v4_5epoch_2times.h5")
 # Retrained_3times = load_model("Saves/Models/Retrained_model_v4_5epoch_3times.h5")
 # Retrained_4times = load_model("Saves/Models/Retrained_model_v4_5epoch_4times.h5")
 # Retrained_5times = load_model("Saves/Models/Retrained_model_v4_5epoch_5times.h5")
 
-models = [Model_v4]
-name_model = ["0times","1times","2times","3times","4times","5times"]
+models = [Model_v1,Model_v5,Model_v6]
+name_model = ["v1","v5","v6"]
+# name_model = ["v1_0times","v5_0times","v6_0times"]
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
 def create_adversarial_pattern(input_image,input_label,model):
@@ -92,7 +95,7 @@ for model in models:
     print(cm_adv)
     index_model = models.index(model)
     model_name = name_model[index_model]
-    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v5_FGSM_Retrained_Model_{}.pkl".format(model_name)
+    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_{}_FGSM_Retrained_Model_0times.pkl".format(model_name)
     with open(name_cm, 'wb') as f:
         pickle.dump(cm_adv, f)
 
