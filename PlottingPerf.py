@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 Dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\"
 Test_dir = Dataset + "ISIC2018V2\\Test\\"
 
-model = load_model("./Saves/Models/InceptionV3_v1.h5")
+model = load_model("./Saves/Models/Retrained_model_v1_5epoch_5times.h5")
 
 test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
@@ -215,9 +215,6 @@ history = np.load('Saves/Hitsory/history_InceptionV3.npy', allow_pickle='TRUE').
 # with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3.pkl", "rb") as f:
 #     cm_UAP = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_V2_FGSM_Retrained_Model_InceptionV3_v3.pkl",
-          "rb") as f:
-    cm_InceptionV3_v3 = pickle.load(f)
 
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_V2_FGSM_Retrained_Model_Retrained_5epoch.pkl",
           "rb") as f:
@@ -242,13 +239,12 @@ with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_V2_FGSM_Retrain
 
 cm_plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 
-multi_cm_retrained_v3 = [cm_InceptionV3_v3,
-                         cm_Retrained_5epoch,
+multi_cm_retrained_v3 = [cm_Retrained_5epoch,
                          cm_Retrained_5epoch_second,
                          cm_Retrained_5epoch_third,
                          cm_Retrained_5epoch_fourth,
                          cm_Retrained_5epoch_fifth]
-plot_graph(multi_cm_retrained_v3, "v3 retraining", [0, 5, 10, 15, 20, 25])
+plot_graph(multi_cm_retrained_v3, "v3 retraining", [5, 10, 15, 20, 25])
 
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v4_FGSM_Retrained_Model_0times.pkl", "rb") as f:
     cm_InceptionV3_v4 = pickle.load(f)

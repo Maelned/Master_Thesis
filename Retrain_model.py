@@ -196,7 +196,7 @@ for i in range(number_times):
         model = base_model
     else:
         model = load_model("./Saves/Models/Retrained_model_v1_5epoch_{}times.h5".format(i))
-    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.6)
+    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.65)
     X_train_adv = np.array([x for x in X_train_adv])
     Y_train_adv = np.array([x for x in Y_train_adv])
     X_val_adv = np.array([x for x in X_val_adv])

@@ -47,7 +47,6 @@ test_ds = test_datagen.flow_from_directory(
 
 def create_adversarial_pattern(input_image,input_label,model):
     with tf.GradientTape() as tape:
-
         input_image = tf.convert_to_tensor(input_image, dtype=tf.float32)
         # explicitly indicate that our image should be tacked for
         # gradient updates
@@ -75,13 +74,13 @@ def FGSM_application():
         for inames in imgs:
 
             img = tf.keras.preprocessing.image.load_img(os.path.join(current_dir, inames),
-                                                                target_size=(224, 224))
+                                                                target_size=(299, 299))
             img = tf.keras.preprocessing.image.img_to_array(img)
 
-            img = img.reshape([1,224, 224, 3])
+            img = img.reshape([1,299, 299, 3])
 
             label = labels[dir]
-            adv_noise = create_adversarial_pattern(img, label)
+            adv_noise = create_adversarial_pattern(img, label,model)
             noise = adv_noise * epsilon
             img_adv = img + noise
 
@@ -103,5 +102,24 @@ Y_pred = model.predict_generator(test_ds, steps=test_ds.samples)
 y_pred = np.argmax(Y_pred, axis=1)
 
 cm_adv = confusion_matrix(test_ds.classes, y_pred)
+cm_adv = np.around(cm_adv, 2)
+print(cm_adv)
+
+
+preds = []
+for e in range(len(test_ds)):
+    i = next(test_ds)
+    image = i[0]
+    label = i[1]
+    adv_noise = create_adversarial_pattern(image,label,model)
+    # construct the image adversary
+    img_adv = (image + (adv_noise * epsilon))
+    img_adv= tf.clip_by_value(img_adv, -1, 1)
+    prediction = model.predict(img_adv)
+    preds.append(prediction[0])
+
+preds = list(preds)
+preds = np.argmax(preds, axis=1)
+cm_adv = confusion_matrix(test_ds.classes, preds)
 cm_adv = np.around(cm_adv, 2)
 print(cm_adv)
