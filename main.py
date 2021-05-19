@@ -15,7 +15,6 @@ from keras.metrics import categorical_accuracy
 # ***************************** NEW CODE *********************************
 # configuration = tf.compat.v1.ConfigProto(device_count={"GPU": 0})
 # session = tf.compat.v1.Session(config=configuration)
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 # CUDA_VISIBLE_DEVICES=""
 physical_device = tf.config.experimental.list_physical_devices('GPU')
 print(f'Device found : {physical_device}')
@@ -130,7 +129,7 @@ def scheduler(epoch, lr):
     return lr
 learning_rate_reduction = LearningRateScheduler(scheduler)
 
-model.compile(optimizer=SGD(lr=1e-3,momentum=0.9), loss="categorical_crossentropy", metrics=[categorical_accuracy])
+model.compile(optimizer=SGD(lr=5e-4,momentum=0.9), loss="categorical_crossentropy", metrics=[categorical_accuracy])
 
 history = model.fit_generator(
     train_ds,

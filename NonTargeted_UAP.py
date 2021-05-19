@@ -7,6 +7,7 @@ from art.estimators.classification import KerasClassifier
 from art.attacks.evasion import UniversalPerturbation
 from sklearn.metrics import confusion_matrix
 import pickle
+import os
 tf.compat.v1.disable_eager_execution()
 
 parser = argparse.ArgumentParser()
@@ -17,8 +18,15 @@ parser.add_argument('--eps', type=float, default=0.04)
 parser.add_argument('--gpu', type=str, default='0')
 args = parser.parse_args()
 
+os.chdir("/home/ubuntu/Implementation_Mael/pythonProject1/")
+
+dataset = "/mnt/data/Dataset/ISIC2018V2/"
+training_dataset = dataset + "Training/"
+validation_dataset = dataset + "Validation/"
+Test_dataset = dataset + "Test/"
+
 Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
-model = load_model("./Saves/Models/Retrained_model_v6_5epoch_5times.h5")
+model = load_model("./Saves/Models/Retrained_model_v1_5epoch_5times.h5")
 
 test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
@@ -30,7 +38,7 @@ test_datagen = ImageDataGenerator(
 )
 
 test_ds = test_datagen.flow_from_directory(
-    Test_set,
+    Test_dataset,
     target_size=(299, 299),
     color_mode="rgb",
     classes=None,
@@ -109,7 +117,7 @@ cm_adv = confusion_matrix(test_ds.classes, prediction_adversarial)
 cm_adv = np.around(cm_adv, 2)
 print(cm_adv)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_RetrainedModel_v6.pkl", 'wb') as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_RetrainedModel_v1.pkl", 'wb') as f:
     pickle.dump(cm_adv, f)
 
 rf_train = get_fooling_rate(preds=prediction, preds_adv=prediction_adversarial)

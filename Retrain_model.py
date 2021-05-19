@@ -82,7 +82,7 @@ def adversarialTraining(train, val, amount):
         label = i[1]
         X_val_adv.append(image[0])
         Y_val_adv.append(label[0])
-
+    print("Training_set")
     for current_sample in random_samples_train:
         label = current_sample[1]
         image = current_sample[0]
@@ -91,7 +91,7 @@ def adversarialTraining(train, val, amount):
         img_adv = (image + (adv_noise * 2/255))
         X_train_adv.append(img_adv[0])
         Y_train_adv.append(label[0])
-
+    print("Validation_set")
     for current_sample in random_samples_val:
         label = current_sample[1]
         image = current_sample[0]
@@ -195,7 +195,7 @@ for i in range(number_times):
         model = base_model
     else:
         model = load_model("./Saves/Models/Retrained_model_v1_5epoch_{}times.h5".format(i))
-    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.5)
+    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.75)
     X_train_adv = np.array([x for x in X_train_adv])
     Y_train_adv = np.array([x for x in Y_train_adv])
     X_val_adv = np.array([x for x in X_val_adv])
