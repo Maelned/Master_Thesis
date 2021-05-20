@@ -6,10 +6,11 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import confusion_matrix
 
 # os.chdir("/home/ubuntu/Implementation_Mael")
-dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\"
-training_dataset = dataset + "Training\\"
-validation_dataset = dataset + "Validation\\"
-test_dataset = dataset + "Test\\"
+# dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\"
+dataset = "/mnt/data/Dataset/ISIC2018V2/"
+training_dataset = dataset + "Training/"
+validation_dataset = dataset + "Validation/"
+test_dataset = dataset + "Test/"
 model = load_model("./Saves/Models/InceptionV3_v1.h5")
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
@@ -64,21 +65,19 @@ def create_adversarial_pattern(input_image,input_label,model):
 def FGSM_application():
     preds = []
     classes = [f for f in os.listdir(test_dataset)]
-
+    classes = sorted(classes)
     for dir in classes:
         print("Dir = " + dir)
         current_dir = test_dataset + dir
-
+        nb_img = 0
         imgs = [i for i in os.listdir(current_dir)]
-
+        imgs = sorted(imgs)
         for inames in imgs:
-
             img = tf.keras.preprocessing.image.load_img(os.path.join(current_dir, inames),
                                                                 target_size=(299, 299))
             img = tf.keras.preprocessing.image.img_to_array(img)
-
             img = img.reshape([1,299, 299, 3])
-
+            img = img/255.
             label = labels[dir]
             adv_noise = create_adversarial_pattern(img, label,model)
             noise = adv_noise * epsilon
@@ -98,15 +97,8 @@ def FGSM_application():
 
 FGSM_application()
 
-Y_pred = model.predict_generator(test_ds, steps=test_ds.samples)
-y_pred = np.argmax(Y_pred, axis=1)
-
-cm_adv = confusion_matrix(test_ds.classes, y_pred)
-cm_adv = np.around(cm_adv, 2)
-print(cm_adv)
-
-
 preds = []
+nb_img = 0
 for e in range(len(test_ds)):
     i = next(test_ds)
     image = i[0]
@@ -114,7 +106,7 @@ for e in range(len(test_ds)):
     adv_noise = create_adversarial_pattern(image,label,model)
     # construct the image adversary
     img_adv = (image + (adv_noise * epsilon))
-    img_adv= tf.clip_by_value(img_adv, -1, 1)
+    # img_adv= tf.clip_by_value(img_adv, -1, 1)
     prediction = model.predict(img_adv)
     preds.append(prediction[0])
 

@@ -88,7 +88,7 @@ def adversarialTraining(train, val, amount):
         image = current_sample[0]
         adv_noise = create_adversarial_pattern(image, label,base_model)
         # construct the image adversary
-        img_adv = (image + (adv_noise * 2/255))
+        img_adv = (image + (adv_noise * 2./255))
         X_train_adv.append(img_adv[0])
         Y_train_adv.append(label[0])
     print("Validation_set")
@@ -97,7 +97,7 @@ def adversarialTraining(train, val, amount):
         image = current_sample[0]
         adv_noise = create_adversarial_pattern(image, label,base_model)
         # construct the image adversary
-        img_adv = (image + (adv_noise * 2 / 255))
+        img_adv = (image + (adv_noise * 2./255))
         X_val_adv.append(img_adv[0])
         Y_val_adv.append(label[0])
 
