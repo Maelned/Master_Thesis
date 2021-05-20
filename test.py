@@ -4,13 +4,13 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import confusion_matrix
-
+import pickle
 # os.chdir("/home/ubuntu/Implementation_Mael")
-# dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\"
-dataset = "/mnt/data/Dataset/ISIC2018V2/"
-training_dataset = dataset + "Training/"
-validation_dataset = dataset + "Validation/"
-test_dataset = dataset + "Test/"
+dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\"
+# dataset = "/mnt/data/Dataset/ISIC2018V2/"
+training_dataset = dataset + "Training\\"
+validation_dataset = dataset + "Validation\\"
+test_dataset = dataset + "Test\\"
 model = load_model("./Saves/Models/InceptionV3_v1.h5")
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
@@ -93,6 +93,9 @@ def FGSM_application():
     cm_adv = confusion_matrix(test_ds.classes, preds)
     cm_adv = np.around(cm_adv, 2)
     print(cm_adv)
+    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_Test1.pkl"
+    with open(name_cm, 'wb') as f:
+        pickle.dump(cm_adv, f)
     print("FGSM Application Done")
 
 FGSM_application()
@@ -115,3 +118,7 @@ preds = np.argmax(preds, axis=1)
 cm_adv = confusion_matrix(test_ds.classes, preds)
 cm_adv = np.around(cm_adv, 2)
 print(cm_adv)
+
+name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_Test2.pkl"
+with open(name_cm, 'wb') as f:
+    pickle.dump(cm_adv, f)

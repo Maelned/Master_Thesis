@@ -21,8 +21,8 @@ validation_dataset = dataset + "Validation/"
 Test_dataset = dataset + "Test/"
 
 base_model = load_model("Saves/Models/InceptionV3_v1.h5")
-number_times = 5
-nb_epochs = 6
+number_times = 3
+nb_epochs = 15
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
 # new line
@@ -64,6 +64,7 @@ def get_dataset(train_ds, val_ds):
 
 
 def adversarialTraining(train, val, amount):
+    print("Adversarial Training in progress")
     X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = [], [], [], []
 
     am_train = int(len(train) * amount)
@@ -82,22 +83,29 @@ def adversarialTraining(train, val, amount):
         label = i[1]
         X_val_adv.append(image[0])
         Y_val_adv.append(label[0])
-    print("Training_set")
+    preds_normal = []
+    label_normal = []
+    preds_adv = []
     for current_sample in random_samples_train:
         label = current_sample[1]
         image = current_sample[0]
+        prediction = base_model.predict(image)
+        preds_normal.append(prediction[0])
+        label_normal.append(label[0])
         adv_noise = create_adversarial_pattern(image, label,base_model)
         # construct the image adversary
-        img_adv = (image + (adv_noise * 2./255))
+        img_adv = (image + (adv_noise * 2/255.))
+        prediction = base_model.predict(img_adv)
+        preds_adv.append(prediction[0])
         X_train_adv.append(img_adv[0])
         Y_train_adv.append(label[0])
-    print("Validation_set")
+
     for current_sample in random_samples_val:
         label = current_sample[1]
         image = current_sample[0]
         adv_noise = create_adversarial_pattern(image, label,base_model)
         # construct the image adversary
-        img_adv = (image + (adv_noise * 2./255))
+        img_adv = (image + (adv_noise * 2/255.))
         X_val_adv.append(img_adv[0])
         Y_val_adv.append(label[0])
 
@@ -181,10 +189,7 @@ learning_rate_reduction = ReduceLROnPlateau(monitor='val_categorical_accuracy',
                                             factor=0.2,
                                             min_lr=0.00001)
 
-class_weights = class_weight.compute_class_weight("balanced",
-                                                  np.unique(train_ds.classes),
-                                                  train_ds.classes)
-class_weights = {i: class_weights[i] for i in range(7)}
+
 
 train, val = get_dataset(train_ds, val_ds)
 eps = 2/255.0
@@ -193,33 +198,37 @@ for i in range(number_times):
     print("Retrain model {} times".format(i+1))
     preds = []
     if i == 0:
+        print("base_model")
         model = base_model
     else:
-        model = load_model("./Saves/Models/Retrained_model_v1_5epoch_{}times.h5".format(i))
-    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.65)
+        print("changing model")
+        model = load_model("./Saves/Models/Retrained_model_v1_15epoch_{}times.h5".format(i))
+    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.75)
     X_train_adv = np.array([x for x in X_train_adv])
     Y_train_adv = np.array([x for x in Y_train_adv])
     X_val_adv = np.array([x for x in X_val_adv])
     Y_val_adv = np.array([x for x in Y_val_adv])
+
+    class_weights = class_weight.compute_class_weight("balanced",
+                                                      np.unique(np.argmax(Y_train_adv, axis=1)),
+                                                      np.argmax(Y_train_adv, axis=1))
+    class_weights = {i: class_weights[i] for i in range(7)}
     history = model.fit(
         x=X_train_adv,
         y=Y_train_adv,
         epochs=nb_epochs,
         batch_size = 32,
         validation_data= (X_val_adv, Y_val_adv),
+        class_weight= class_weights,
         shuffle = True,
         verbose=2,
         workers=8,
         callbacks=[learning_rate_reduction]
     )
 
-    name_model = "./Saves/Models/Retrained_model_v1_5epoch_{}times.h5".format(i+1)
+    name_model = "./Saves/Models/Retrained_model_v1_15epoch_{}times.h5".format(i+1)
     model.save(name_model)
 
-    Y_pred = model.predict_generator(test_ds, steps=test_ds.samples)
-    y_pred = np.argmax(Y_pred, axis=1)
-
-    accuracy_scr = accuracy_score(test_ds.classes, y_pred)
     print("before test loop")
     for e in range(len(test_ds)):
         a = next(test_ds)
@@ -228,7 +237,8 @@ for i in range(number_times):
         adv_noise = create_adversarial_pattern(image,label,model)
         # construct the image adversary
         img_adv = (image + (adv_noise * eps))
-        img_adv = tf.clip_by_value(img_adv, -1, 1)
+        # img_adv = tf.clip_by_value(img_adv, -1, 1)
+
         prediction = model.predict(img_adv)
         preds.append(prediction[0])
 
@@ -238,6 +248,6 @@ for i in range(number_times):
     cm_adv = np.around(cm_adv, 2)
     print(cm_adv)
 
-    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_{}times.pkl".format(i+1)
+    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_15epochs_{}times.pkl".format(i+1)
     with open(name_cm, 'wb') as f:
         pickle.dump(cm_adv, f)
