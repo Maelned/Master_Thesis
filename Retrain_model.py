@@ -21,8 +21,8 @@ validation_dataset = dataset + "Validation/"
 Test_dataset = dataset + "Test/"
 
 base_model = load_model("Saves/Models/InceptionV3_v1.h5")
-number_times = 3
-nb_epochs = 15
+number_times = 5
+nb_epochs = 10
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
 # new line
@@ -202,8 +202,8 @@ for i in range(number_times):
         model = base_model
     else:
         print("changing model")
-        model = load_model("./Saves/Models/Retrained_model_v1_15epoch_{}times.h5".format(i))
-    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.75)
+        model = load_model("./Saves/Models/Retrained_model_v1_10epoch_{}times.h5".format(i))
+    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.5)
     X_train_adv = np.array([x for x in X_train_adv])
     Y_train_adv = np.array([x for x in Y_train_adv])
     X_val_adv = np.array([x for x in X_val_adv])
@@ -226,7 +226,7 @@ for i in range(number_times):
         callbacks=[learning_rate_reduction]
     )
 
-    name_model = "./Saves/Models/Retrained_model_v1_15epoch_{}times.h5".format(i+1)
+    name_model = "./Saves/Models/Retrained_model_v1_10epoch_{}times.h5".format(i+1)
     model.save(name_model)
 
     print("before test loop")
@@ -248,6 +248,6 @@ for i in range(number_times):
     cm_adv = np.around(cm_adv, 2)
     print(cm_adv)
 
-    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_15epochs_{}times.pkl".format(i+1)
+    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_10epochs_{}times.pkl".format(i+1)
     with open(name_cm, 'wb') as f:
         pickle.dump(cm_adv, f)
