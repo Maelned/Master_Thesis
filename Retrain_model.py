@@ -21,7 +21,7 @@ validation_dataset = dataset + "Validation/"
 Test_dataset = dataset + "Test/"
 
 base_model = load_model("Saves/Models/InceptionV3_v1.h5")
-number_times = 5
+number_times = 8
 nb_epochs = 10
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 

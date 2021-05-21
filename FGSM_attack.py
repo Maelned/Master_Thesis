@@ -6,9 +6,9 @@ from sklearn.metrics import confusion_matrix
 import pickle
 import matplotlib.pyplot as plt
 # tf.compat.v1.disable_eager_execution()
-# dataset = "/home/ubuntu/Dataset/Dataset_Adversarial_Samples/Retraining_set/"
-# Test_set = dataset + "Test/"
-Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
+dataset = "/home/ubuntu/Dataset/Dataset_Adversarial_Samples/Retraining_set/"
+Test_set = dataset + "Test/"
+# Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
 #
 Model_v1 = load_model("Saves/Models/Retrained_model_v1_10epoch_5times.h5")
 

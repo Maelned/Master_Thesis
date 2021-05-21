@@ -239,76 +239,22 @@ multi_cm_retrained_v4 = [cm_InceptionV3_v4,
 plot_graph(multi_cm_retrained_v4, "v4_retraining", [0, 5, 10, 15, 20, 25])
 
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v5_FGSM_Retrained_Model_0times.pkl", "rb") as f:
-    cm_InceptionV3_v5 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v5_FGSM_Retrained_Model_1times.pkl", "rb") as f:
-    cm_v5_Retrained_1times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v5_FGSM_Retrained_Model_2times.pkl", "rb") as f:
-    cm_v5_Retrained_2times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v5_FGSM_Retrained_Model_3times.pkl", "rb") as f:
-    cm_v5_Retrained_3times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v4_FGSM_Retrained_Model_4times.pkl", "rb") as f:
-    cm_v5_Retrained_4times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v5_FGSM_Retrained_Model_5times.pkl", "rb") as f:
-    cm_v5_Retrained_5times = pickle.load(f)
-multi_cm_retrained_v5 = [cm_InceptionV3_v5,
-                         cm_v5_Retrained_1times,
-                         cm_v5_Retrained_2times,
-                         cm_v5_Retrained_3times,
-                         cm_v5_Retrained_4times,
-                         cm_v5_Retrained_5times]
-plot_graph(multi_cm_retrained_v5, "v5_retraining", [0, 5, 10, 15, 20, 25])
-
-
-
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v6_FGSM_Retrained_Model_0times.pkl", "rb") as f:
-    cm_InceptionV3_v6 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v6_FGSM_Retrained_Model_1times.pkl", "rb") as f:
-    cm_v6_Retrained_1times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v6_FGSM_Retrained_Model_2times.pkl", "rb") as f:
-    cm_v6_Retrained_2times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v6_FGSM_Retrained_Model_3times.pkl", "rb") as f:
-    cm_v6_Retrained_3times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v6_FGSM_Retrained_Model_4times.pkl", "rb") as f:
-    cm_v6_Retrained_4times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v6_FGSM_Retrained_Model_5times.pkl", "rb") as f:
-    cm_v6_Retrained_5times = pickle.load(f)
-multi_cm_retrained_v6 = [cm_InceptionV3_v6,
-                         cm_v6_Retrained_1times,
-                         cm_v6_Retrained_2times,
-                         cm_v6_Retrained_3times,
-                         cm_v6_Retrained_4times,
-                         cm_v6_Retrained_5times]
-plot_graph(multi_cm_retrained_v6, "v6_retraining", [0, 5, 10, 15, 20, 25])
-
-
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_0times.pkl", "rb") as f:
     cm_InceptionV3_v1 = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_1times.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_10epochs_1times.pkl", "rb") as f:
     cm_v1_Retrained_1times = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_2times.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_10epochs_2times.pkl", "rb") as f:
     cm_v1_Retrained_2times = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_3times.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_10epochs_3times.pkl", "rb") as f:
     cm_v1_Retrained_3times = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_4times.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_10epochs_4times.pkl", "rb") as f:
     cm_v1_Retrained_4times = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_5times.pkl", "rb") as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_10epochs_5times.pkl", "rb") as f:
     cm_v1_Retrained_5times = pickle.load(f)
 multi_cm_retrained_v1 = [cm_InceptionV3_v1,
                          cm_v1_Retrained_1times,
@@ -316,4 +262,4 @@ multi_cm_retrained_v1 = [cm_InceptionV3_v1,
                          cm_v1_Retrained_3times,
                          cm_v1_Retrained_4times,
                          cm_v1_Retrained_5times]
-plot_graph(multi_cm_retrained_v1, "v1_retraining", [0, 5, 10, 15, 20, 25])
+plot_graph(multi_cm_retrained_v1, "v1_retraining with 10 epochs", [0, 5, 10, 15, 20, 25])
