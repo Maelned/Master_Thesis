@@ -10,10 +10,11 @@ dataset = "/home/ubuntu/Dataset/Dataset_Adversarial_Samples/Retraining_set/"
 Test_set = dataset + "Test/"
 # Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
 #
-Model_v1 = load_model("Saves/Models/Retrained_model_v1_10epoch_5times.h5")
+Model_v1 = load_model("Saves/Models/InceptionV3_v3.h5")
+model = load_model("./Saves/Models/Retrained_model_v3_UAP_5epoch_5times.h5")
 
-models = [Model_v1]
-name_model = ["Retrained_5times"]
+models = [model]
+name_model = ["InceptionV3_v3"]
 # name_model = ["v1_0times","v5_0times","v6_0times"]
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
@@ -63,11 +64,6 @@ classes = ['actinic keratoses', 'basal cell carcinoma', 'benign keratosis-like l
 
 eps = 2/255.0
 
-# attack = FastGradientMethod(estimator=classifier, eps=eps)
-# x_test_adv = attack.generate(x=X_train)
-# predictions = classifier.predict(x_test_adv)
-# accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(Y_train, axis=1)) / len(Y_train)
-# print("Accuracy on adversarial test examples: {}%".format(accuracy * 100)
 for model in models:
     preds = []
     for e in range(len(test_ds)):
@@ -88,7 +84,7 @@ for model in models:
     print(cm_adv)
     index_model = models.index(model)
     model_name = name_model[index_model]
-    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v1_FGSM_Retrained_Model_5times_10epoch.pkl"
+    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_Retrained_model_v3_UAP_FGSM.pkl"
     with open(name_cm, 'wb') as f:
         pickle.dump(cm_adv, f)
 

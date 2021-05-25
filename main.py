@@ -113,7 +113,7 @@ x = layers.GlobalAveragePooling2D()(x)
 # # add a fully-connected layer
 x = layers.Dropout(0.7)(x)
 x = layers.Dense(units=512,kernel_regularizer= regularizers.l1(1e-3),activation='relu')(x)
-x = layers.Dropout(0.5)(x)
+x = layers.Dropout(0.6)(x)
 # and a fully connected output/classification layer
 x = layers.Dense(7,kernel_regularizer= regularizers.l1(1e-3),activation="softmax")(x)
 # x = layers.Activation(activation='softmax')(x)
@@ -122,9 +122,11 @@ model = Model(pre_trained_model.input, x)
 
 def scheduler(epoch, lr):
   if epoch == 40:
-    return lr / 10
+    lr = 1e-4
+    return lr
   elif epoch == 45:
-    return lr / 10
+    lr = 1e-5
+    return lr
   else:
     return lr
 learning_rate_reduction = LearningRateScheduler(scheduler)
@@ -154,5 +156,5 @@ accuracy_scr = accuracy_score(val_ds.classes, y_pred)
 
 print("ACCURACY SCORE = ", accuracy_scr)
 
-np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3_v1.npy', history.history)
-model.save("./pythonProject1/Saves/Models/InceptionV3_v1.h5")
+np.save('./pythonProject1/Saves/Hitsory/history_InceptionV3_v3.npy', history.history)
+model.save("./pythonProject1/Saves/Models/InceptionV3_v3.h5")

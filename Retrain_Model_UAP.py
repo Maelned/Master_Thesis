@@ -1,10 +1,10 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import pickle
 import os
-import itertools
 import random
 import tensorflow as tf
+from art.estimators.classification import KerasClassifier
+from art.attacks.evasion import UniversalPerturbation
 from keras.callbacks import ReduceLROnPlateau
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -12,7 +12,7 @@ from sklearn.utils import class_weight
 from keras.optimizers import SGD
 from keras.metrics import categorical_accuracy
 from sklearn.metrics import confusion_matrix
-
+tf.compat.v1.disable_eager_execution()
 os.chdir("/home/ubuntu/Implementation_Mael/pythonProject1/")
 
 dataset = "/mnt/data/Dataset/ISIC2018V2/"
@@ -64,50 +64,65 @@ def get_dataset(train_ds, val_ds):
 
 
 def adversarialTraining(train, val, amount):
+    classifier = KerasClassifier(model=model, use_logits=False)
+
+    adv_crafter = UniversalPerturbation(
+        classifier=classifier,
+        attacker='fgsm',
+        attacker_params={'targeted': False, 'eps': 0.0024},
+        max_iter=10,
+        batch_size=1,
+        delta=0.000001)
+
     print("Adversarial Training in progress")
-    X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = [], [], [], []
+    X_train_sample, Y_train_sample = [], []
+    X_val_sample, Y_val_sample = [], []
+    X_train, Y_train = [], []
+    X_val, Y_val = [], []
 
     am_train = int(len(train) * amount)
     am_val = int(len(val) * amount)
     random_samples_train = random.sample(train,am_train)
     random_samples_val = random.sample(val, am_val)
 
-    for i in train:
-        image = i[0]
-        label = i[1]
-        X_train_adv.append(image[0])
-        Y_train_adv.append(label[0])
-
-    for i in val:
-        image = i[0]
-        label = i[1]
-        X_val_adv.append(image[0])
-        Y_val_adv.append(label[0])
-    preds_normal = []
-    label_normal = []
-    preds_adv = []
     for current_sample in random_samples_train:
         label = current_sample[1]
         image = current_sample[0]
-        prediction = base_model.predict(image)
-        preds_normal.append(prediction[0])
-        label_normal.append(label[0])
-        adv_noise = create_adversarial_pattern(image, label,base_model)
-        # construct the image adversary
-        img_adv = (image + (adv_noise * 2/255.))
-        prediction = base_model.predict(img_adv)
-        preds_adv.append(prediction[0])
-        X_train_adv.append(img_adv[0])
-        Y_train_adv.append(label[0])
+        X_train_sample.append(image[0])
+        Y_train_sample.append(label[0])
+
+    _ = adv_crafter.generate(np.array(X_train_sample), np.array(Y_train_sample))
+    noise = adv_crafter.noise[0, :].astype(np.float32)
+    X_train_adv_sample = X_train_sample + noise
+
+    for i in train:
+        image = i[0]
+        label = i[1]
+        X_train.append(image[0])
+        Y_train.append(label[0])
+
+    X_train_adv = np.concatenate((X_train,X_train_adv_sample))
+    Y_train_adv = np.concatenate((Y_train,Y_train_sample))
+
 
     for current_sample in random_samples_val:
         label = current_sample[1]
         image = current_sample[0]
-        adv_noise = create_adversarial_pattern(image, label,base_model)
-        # construct the image adversary
-        img_adv = (image + (adv_noise * 2/255.))
-        X_val_adv.append(img_adv[0])
-        Y_val_adv.append(label[0])
+        X_val_sample.append(image[0])
+        Y_val_sample.append(label[0])
+
+    _ = adv_crafter.generate(np.array(X_val_sample), np.array(Y_val_sample))
+    noise = adv_crafter.noise[0, :].astype(np.float32)
+    X_val_adv_sample = X_val_sample + noise
+
+    for i in val:
+        image = i[0]
+        label = i[1]
+        X_val.append(image[0])
+        Y_val.append(label[0])
+
+    X_val_adv = np.concatenate((X_val,X_val_adv_sample))
+    Y_val_adv = np.concatenate((Y_val,Y_val_sample))
 
     return X_train_adv, Y_train_adv, X_val_adv, Y_val_adv
 
@@ -202,8 +217,10 @@ for i in range(number_times):
         model = base_model
     else:
         print("changing model")
-        model = load_model("./Saves/Models/Retrained_model_v4_10epoch_{}times.h5".format(i))
+        model = load_model("./Saves/Models/Retrained_model_v3_UAP_10epoch_{}times.h5".format(i))
+
     X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.5)
+
     X_train_adv = np.array([x for x in X_train_adv])
     Y_train_adv = np.array([x for x in Y_train_adv])
     X_val_adv = np.array([x for x in X_val_adv])
@@ -228,28 +245,6 @@ for i in range(number_times):
         callbacks=[learning_rate_reduction]
     )
 
-    name_model = "./Saves/Models/Retrained_model_v4_10epoch_{}times.h5".format(i+1)
+    name_model = "./Saves/Models/Retrained_model_v3_UAP_10epoch_{}times.h5".format(i+1)
+
     model.save(name_model)
-
-    print("before test loop")
-    for e in range(len(test_ds)):
-        a = next(test_ds)
-        image = a[0]
-        label = a[1]
-        adv_noise = create_adversarial_pattern(image,label,model)
-        # construct the image adversary
-        img_adv = (image + (adv_noise * eps))
-        # img_adv = tf.clip_by_value(img_adv, -1, 1)
-
-        prediction = model.predict(img_adv)
-        preds.append(prediction[0])
-
-    preds = list(preds)
-    preds = np.argmax(preds, axis=1)
-    cm_adv = confusion_matrix(test_ds.classes, preds)
-    cm_adv = np.around(cm_adv, 2)
-    print(cm_adv)
-
-    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v4_FGSM_Retrained_Model_10epochs_{}times.pkl".format(i+1)
-    with open(name_cm, 'wb') as f:
-        pickle.dump(cm_adv, f)

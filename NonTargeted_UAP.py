@@ -26,7 +26,7 @@ validation_dataset = dataset + "Validation/"
 Test_dataset = dataset + "Test/"
 
 Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
-model = load_model("./Saves/Models/Retrained_model_v1_5epoch_5times.h5")
+model = load_model("./Saves/Models/Retrained_model_v3_UAP_5epoch_5times.h5")
 
 test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
@@ -48,21 +48,6 @@ test_ds = test_datagen.flow_from_directory(
     seed=False,
     interpolation="bilinear",
     follow_links=False)
-
-def calculate_data(dataset, norm=False, ):
-    if norm:
-        mean_l2_train = 0
-        mean_inf_train = 0
-        for e in range(len(dataset)):
-            i = next(dataset)
-            image = i[0]
-            mean_l2_train += np.linalg.norm(image[:, :, 0].flatten(), ord=2)
-            mean_inf_train += np.abs(image[:, :, 0].flatten()).max()
-        mean_l2_train /= len(dataset)
-        mean_inf_train /= len(dataset)
-        if norm:
-            return mean_l2_train, mean_inf_train
-
 
 
 def get_fooling_rate(preds, preds_adv):
@@ -117,7 +102,7 @@ cm_adv = confusion_matrix(test_ds.classes, prediction_adversarial)
 cm_adv = np.around(cm_adv, 2)
 print(cm_adv)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_RetrainedModel_v1.pkl", 'wb') as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_Retrained_model_v3.pkl", 'wb') as f:
     pickle.dump(cm_adv, f)
 
 rf_train = get_fooling_rate(preds=prediction, preds_adv=prediction_adversarial)
