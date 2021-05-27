@@ -1,20 +1,25 @@
 import numpy as np
 import tensorflow as tf
+import os
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import confusion_matrix
 import pickle
+from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 # tf.compat.v1.disable_eager_execution()
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 dataset = "/home/ubuntu/Dataset/Dataset_Adversarial_Samples/Retraining_set/"
 Test_set = dataset + "Test/"
 # Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
-#
-Model_v1 = load_model("Saves/Models/InceptionV3_v3.h5")
-model = load_model("./Saves/Models/Retrained_model_v3_UAP_5epoch_5times.h5")
+# #
+# Model_v1 = load_model("Saves/Models/InceptionV3_v3.h5")
+# model = load_model("./Saves/Models/Retrained_model_v3_5epoch_5times.h5")
+
+model = load_model("/home/ubuntu/Implementation_Kentin/Perf/ResNetV2.h5")
 
 models = [model]
-name_model = ["InceptionV3_v3"]
+name_model = ["Resnet50"]
 # name_model = ["v1_0times","v5_0times","v6_0times"]
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
@@ -83,8 +88,11 @@ for model in models:
     cm_adv = np.around(cm_adv, 2)
     print(cm_adv)
     index_model = models.index(model)
+
+    accuracy_scr = accuracy_score(test_ds.classes, preds)
+    print("ACCURACY SCORE = ", accuracy_scr)
     model_name = name_model[index_model]
-    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_Retrained_model_v3_UAP_FGSM.pkl"
+    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_Resnet_FGSM.pkl"
     with open(name_cm, 'wb') as f:
         pickle.dump(cm_adv, f)
 

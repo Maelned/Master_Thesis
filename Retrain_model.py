@@ -20,9 +20,10 @@ training_dataset = dataset + "Training/"
 validation_dataset = dataset + "Validation/"
 Test_dataset = dataset + "Test/"
 
-base_model = load_model("Saves/Models/InceptionV3_v3.h5")
-number_times = 5
-nb_epochs = 10
+# base_model = load_model("/home/ubuntu/Implementation_Kentin/Perf/ResNetV2.h5")
+base_model = load_model("/home/ubuntu/Implementation_Mael/pythonProject1/Saves/Models/InceptionV3_v3.h5")
+number_times = 7
+nb_epochs = 5
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
 # new line
@@ -202,7 +203,7 @@ for i in range(number_times):
         model = base_model
     else:
         print("changing model")
-        model = load_model("./Saves/Models/Retrained_model_v4_10epoch_{}times.h5".format(i))
+        model = load_model("./Saves/Models/Retrained_model_InceptionV3_5epoch_{}times.h5".format(i))
     X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.5)
     X_train_adv = np.array([x for x in X_train_adv])
     Y_train_adv = np.array([x for x in Y_train_adv])
@@ -214,7 +215,7 @@ for i in range(number_times):
                                                       np.argmax(Y_train_adv, axis=1))
     class_weights = {i: class_weights[i] for i in range(7)}
 
-    model.compile(optimizer=SGD(lr=7e-5,momentum=0.9), loss="categorical_crossentropy", metrics=[categorical_accuracy])
+    model.compile(optimizer=SGD(lr=9e-5,momentum=0.9), loss="categorical_crossentropy", metrics=[categorical_accuracy])
     history = model.fit(
         x=X_train_adv,
         y=Y_train_adv,
@@ -228,7 +229,7 @@ for i in range(number_times):
         callbacks=[learning_rate_reduction]
     )
 
-    name_model = "./Saves/Models/Retrained_model_v4_10epoch_{}times.h5".format(i+1)
+    name_model = "./Saves/Models/Retrained_model_InceptionV3_5epoch_{}times.h5".format(i+1)
     model.save(name_model)
 
     print("before test loop")
@@ -250,6 +251,6 @@ for i in range(number_times):
     cm_adv = np.around(cm_adv, 2)
     print(cm_adv)
 
-    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v4_FGSM_Retrained_Model_10epochs_{}times.pkl".format(i+1)
+    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_Retrained_Model_5epochs_{}times.pkl".format(i+1)
     with open(name_cm, 'wb') as f:
         pickle.dump(cm_adv, f)

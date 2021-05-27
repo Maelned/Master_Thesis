@@ -21,8 +21,8 @@ validation_dataset = dataset + "Validation/"
 Test_dataset = dataset + "Test/"
 
 base_model = load_model("Saves/Models/InceptionV3_v3.h5")
-number_times = 5
-nb_epochs = 10
+number_times = 10
+nb_epochs = 5
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
 # new line
@@ -217,7 +217,7 @@ for i in range(number_times):
         model = base_model
     else:
         print("changing model")
-        model = load_model("./Saves/Models/Retrained_model_v3_UAP_10epoch_{}times.h5".format(i))
+        model = load_model("./Saves/Models/Retrained_model_v3_UAP_5epoch_{}times.h5".format(i))
 
     X_train_adv, Y_train_adv, X_val_adv, Y_val_adv = adversarialTraining(train, val, 0.5)
 
@@ -231,7 +231,7 @@ for i in range(number_times):
                                                       np.argmax(Y_train_adv, axis=1))
     class_weights = {i: class_weights[i] for i in range(7)}
 
-    model.compile(optimizer=SGD(lr=7e-5,momentum=0.9), loss="categorical_crossentropy", metrics=[categorical_accuracy])
+    model.compile(optimizer=SGD(lr=5e-5,momentum=0.9), loss="categorical_crossentropy", metrics=[categorical_accuracy])
     history = model.fit(
         x=X_train_adv,
         y=Y_train_adv,
@@ -245,6 +245,6 @@ for i in range(number_times):
         callbacks=[learning_rate_reduction]
     )
 
-    name_model = "./Saves/Models/Retrained_model_v3_UAP_10epoch_{}times.h5".format(i+1)
+    name_model = "./Saves/Models/Retrained_model_v3_UAP_5epoch_{}times.h5".format(i+1)
 
     model.save(name_model)

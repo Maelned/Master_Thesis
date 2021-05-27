@@ -9,7 +9,7 @@ from sklearn.metrics import confusion_matrix
 import pickle
 import os
 tf.compat.v1.disable_eager_execution()
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str, default='chestx')
 parser.add_argument('--model', type=str, default='inceptionv3')
@@ -25,8 +25,8 @@ training_dataset = dataset + "Training/"
 validation_dataset = dataset + "Validation/"
 Test_dataset = dataset + "Test/"
 
-Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
-model = load_model("./Saves/Models/Retrained_model_v3_UAP_5epoch_5times.h5")
+# Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
+model = load_model("./Saves/Models/Retrained_model_v3_UAP_5epoch_8times.h5")
 
 test_datagen = ImageDataGenerator(
     rescale=1. / 255.,
