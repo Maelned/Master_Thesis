@@ -8,19 +8,17 @@ import pickle
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 # tf.compat.v1.disable_eager_execution()
-# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 dataset = "/home/ubuntu/Dataset/Dataset_Adversarial_Samples/Retraining_set/"
 Test_set = dataset + "Test/"
 # Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
 # #
 # Model_v1 = load_model("Saves/Models/InceptionV3_v3.h5")
 # model = load_model("./Saves/Models/Retrained_model_v3_5epoch_5times.h5")
-model_test = load_model("./Saves/Models/InceptionV3_v3.h5")
+base_model = load_model("./Saves/Models/InceptionV3_v3.h5")
+# model = load_model("./Saves/Models/Retrained_model_v3_5epoch_5times.h5")
 model = load_model("./Saves/Models/Retrained_model_v3_5epoch_5times.h5")
 
-models = [model]
-name_model = ["Resnet50"]
-# name_model = ["v1_0times","v5_0times","v6_0times"]
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
 
 def create_adversarial_pattern(input_image,input_label,model):
@@ -69,31 +67,29 @@ classes = ['actinic keratoses', 'basal cell carcinoma', 'benign keratosis-like l
 
 eps = 2/255.0
 
-for model in models:
-    preds = []
-    for e in range(len(test_ds)):
-        i = next(test_ds)
-        image = i[0]
-        label = i[1]
-        adv_noise = create_adversarial_pattern(image,label,model_test)
-        # construct the image adversary
-        img_adv = (image + (adv_noise * eps))
-        img_adv= tf.clip_by_value(img_adv, -1, 1)
-        prediction = model.predict(img_adv)
-        preds.append(prediction[0])
 
-    preds = list(preds)
-    preds = np.argmax(preds, axis=1)
-    cm_adv = confusion_matrix(test_ds.classes, preds)
-    cm_adv = np.around(cm_adv, 2)
-    print(cm_adv)
-    index_model = models.index(model)
+preds = []
+for e in range(len(test_ds)):
+    i = next(test_ds)
+    image = i[0]
+    label = i[1]
+    adv_noise = create_adversarial_pattern(image,label,base_model)
+    # construct the image adversary
+    img_adv = (image + (adv_noise * eps))
+    img_adv= tf.clip_by_value(img_adv, -1, 1)
+    prediction = model.predict(img_adv)
+    preds.append(prediction[0])
 
-    accuracy_scr = accuracy_score(test_ds.classes, preds)
-    print("ACCURACY SCORE = ", accuracy_scr)
-    model_name = name_model[index_model]
-    name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_Resnet_FGSM.pkl"
-    with open(name_cm, 'wb') as f:
-        pickle.dump(cm_adv, f)
+preds = list(preds)
+preds = np.argmax(preds, axis=1)
+cm_adv = confusion_matrix(test_ds.classes, preds)
+cm_adv = np.around(cm_adv, 2)
+print(cm_adv)
+
+accuracy_scr = accuracy_score(test_ds.classes, preds)
+print("ACCURACY SCORE = ", accuracy_scr)
+name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_Retrained_FGSM.pkl"
+with open(name_cm, 'wb') as f:
+    pickle.dump(cm_adv, f)
 
 

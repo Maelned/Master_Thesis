@@ -101,7 +101,7 @@ cm_adv = confusion_matrix(test_ds.classes, prediction_adversarial)
 cm_adv = np.around(cm_adv, 2)
 print(cm_adv)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3_v3.pkl", 'wb') as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3.pkl", 'wb') as f:
     pickle.dump(cm_adv, f)
 
 rf_train = get_fooling_rate(preds=prediction, preds_adv=prediction_adversarial)

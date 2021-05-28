@@ -24,13 +24,13 @@ labels = {"akiec" : [[1.,0.,0.,0.,0.,0.,0.]],
 classe = ['akiec', 'bcc', 'bkl',
            'df', 'mel', 'nv', 'vasc']
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 ISIC_dataset = "/mnt/data/Dataset/ISIC2018V2/Test/"
 FGSM_dataset = "/mnt/data/Dataset/LLT_Datasets/FGSM/"
 #Model trained
 
-ResNet_Model = load_model("/home/ubuntu/Implementation_Mael/pythonProject1/Saves/Models/Retrained_model_v3_5epoch_5times.h5")
+model = load_model("./Saves/Models/InceptionV3_v3.h5")
 
 loss_object = tf.keras.losses.CategoricalCrossentropy()
 
@@ -67,7 +67,7 @@ def create_adversarial_pattern(input_image, input_label):
         tape.watch(input_image)
         # use our model to make predictions on the input image and
         # then compute the loss
-        pred = ResNet_Model(input_image)
+        pred = model(input_image)
         loss = loss_object(input_label, pred)
         # calculate the gradients of loss with respect to the image, then
         # compute the sign of the gradient
@@ -94,18 +94,25 @@ def FGSM_application():
         os.makedirs(dir, exist_ok=True)
         os.chdir(FGSM_dataset + dir + "/")
 
-        prediction = ResNet_Model.predict(img_adv)
-        preds.append(list(prediction[0]))
+        prediction = model.predict(img_adv)
+        preds.append(prediction[0])
         img_adv = np.fliplr(img_adv)
-
         img_adv = tf.keras.preprocessing.image.array_to_img(img_adv[0])
         name = "{}".format(e)
-        # tf.keras.preprocessing.image.save_img("/mnt/data/Dataset/LLT_Datasets/FGSM/" + dir + "/" + name + ".jpg",img_adv)
-
         webp.save_image(img_adv,"/mnt/data/Dataset/LLT_Datasets/FGSM/" + dir + "/" + name + ".webp", quality=100)
         os.chdir(FGSM_dataset)
+    preds = list(preds)
+    preds = np.argmax(preds, axis=1)
+    cm_adv = confusion_matrix(val_ds_test.classes, preds)
+    cm_adv = np.around(cm_adv, 2)
+    print(cm_adv)
+    return cm_adv
 
-# FGSM_application()
+
+cm_adv = FGSM_application()
+
+with open("/home/ubuntu/Implementation_Mael/pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_Before_Flipped_Compressed.pkl", 'wb') as f:
+    pickle.dump(cm_adv, f)
 Modified_dataset = "/mnt/data/Dataset/LLT_Datasets/FGSM/"
 dataset_mitigated= val_datagen_test.flow_from_directory(
     Modified_dataset,
@@ -119,11 +126,7 @@ dataset_mitigated= val_datagen_test.flow_from_directory(
     interpolation="bilinear",
     follow_links=False)
 
-# Y_pred = ResNet_Model.predict_generator(dataset_mitigated, steps=dataset_mitigated.samples / 1)
-# y_pred = np.argmax(Y_pred, axis=1)
-# cm = confusion_matrix(dataset_mitigated.classes, y_pred)
-# cm = np.around(cm, 2)
-# print(cm)
+
 
 
 classes = listdir(Modified_dataset)
@@ -139,7 +142,7 @@ for current_class in classes:
         img = np.asarray(img)
         img = img / 255.
         img = img.reshape([1, 299, 299, 3])
-        prediction = ResNet_Model.predict(img)
+        prediction = model.predict(img)
 
         preds.append(prediction[0])
 
@@ -147,6 +150,6 @@ preds = np.argmax(preds, axis = 1)
 cm = confusion_matrix(val_ds_test.classes, preds)
 cm = np.around(cm, 2)
 print(cm)
-name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_Compressed_Flipped.pkl"
+name_cm = "/home/ubuntu/Implementation_Mael/pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_Compressed_Flipped.pkl"
 with open(name_cm, 'wb') as f:
     pickle.dump(cm, f)

@@ -12,26 +12,7 @@ Test_dir = Dataset + "ISIC2018V2\\Test\\"
 
 model = load_model("./Saves/Models/InceptionV3_v3.h5")
 cm_plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
-test_datagen = ImageDataGenerator(
-    rescale=1. / 255.,
-    featurewise_center=False,  # set input mean to 0 over the dataset
-    samplewise_center=False,  # set each sample mean to 0
-    featurewise_std_normalization=False,  # divide inputs by std of the dataset
-    samplewise_std_normalization=False,  # divide each input by its std
-    zca_whitening=False,  # apply ZCA whitening
-)
 
-test_ds = test_datagen.flow_from_directory(
-    Test_dir,
-    target_size=(224, 224),
-    color_mode="rgb",
-    classes=None,
-    class_mode="categorical",
-    batch_size=1,
-    shuffle=False,
-    seed=False,
-    interpolation="bilinear",
-    follow_links=False)
 
 def plot_curves(history):
     loss_train = history['loss']
@@ -200,77 +181,20 @@ def plot_confusion_matrix(cm, classes,
 history = np.load('Saves/Hitsory/history_InceptionV3_v3.npy', allow_pickle='TRUE').item()
 plot_curves(history)
 
-Y_pred = model.predict_generator(test_ds, steps=test_ds.samples / 1)
-y_pred = np.argmax(Y_pred, axis=1)
-cm = confusion_matrix(test_ds.classes, y_pred)
-cm = np.around(cm, 2)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3.pkl", "rb") as f:
+    cm_InceptionV3= pickle.load(f)
 
-plot_confusion_matrix(cm,cm_plot_labels)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM.pkl", "rb") as f:
+    cm_InceptionV3_FGSM = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_method2.pkl", "rb") as f:
-    cm_InceptionV3_Method2 = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_FlippedCompressed.pkl", "rb") as f:
-    cm_InceptionV3_FlippedCompressed = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_Before_Flipped_Compressed.pkl", "rb") as f:
+    cm_InceptionV3_FGSM_Before_Flipped_Compressed = pickle.load(f)
 
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_Compressed_Flipped.pkl", "rb") as f:
-    cm_InceptionV3_FlippedCompressed_v2 = pickle.load(f)
+    cm_InceptionV3_FGSM_Flipped_Compressed = pickle.load(f)
 
-plot_metrics(cm_InceptionV3_Method2,"FGSM with another method",True,True,True)
-plot_metrics(cm_InceptionV3_FlippedCompressed,"FGSM after Flipped and compressed",True,True,True)
-plot_metrics(cm_InceptionV3_FlippedCompressed_v2,"FGSM after Flipped and compressed second version",True,True,True)
-
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v3_FGSM.pkl", "rb") as f:
-    cm_v3_FGSM = pickle.load(f)
-# plot_confusion_matrix(cm_v3_FGSM,cm_plot_labels)
-plot_metrics(cm_v3_FGSM,"Inception V3 FGSM attack",True,True,True)
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v3_FGSM_Retrained_Model_5epochs_1times.pkl", "rb") as f:
-    cm_v3_Retrained_1times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v3_FGSM_Retrained_Model_5epochs_2times.pkl", "rb") as f:
-    cm_v3_Retrained_2times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v3_FGSM_Retrained_Model_5epochs_3times.pkl", "rb") as f:
-    cm_v3_Retrained_3times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v3_FGSM_Retrained_Model_5epochs_4times.pkl", "rb") as f:
-    cm_v3_Retrained_4times = pickle.load(f)
-
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_v3_FGSM_Retrained_Model_5epochs_5times.pkl", "rb") as f:
-    cm_v3_Retrained_5times = pickle.load(f)
-plot_confusion_matrix(cm_v3_Retrained_5times,cm_plot_labels)
-multi_cm_retrained_v3 = [cm_v3_FGSM,
-                        cm_v3_Retrained_1times,
-                         cm_v3_Retrained_2times,
-                         cm_v3_Retrained_3times,
-                         cm_v3_Retrained_4times,
-                         cm_v3_Retrained_5times]
-plot_graph(multi_cm_retrained_v3, "v3_retraining with 5 epochs", [0, 5, 10, 15, 20,25])
-#
-# with open("./Saves/ConfusionMatrixes/ConfusionMatrix_Resnet_FGSM.pkl", "rb") as f:
-#     cm_resnet_FGSM = pickle.load(f)
-# plot_confusion_matrix(cm_resnet_FGSM,cm_plot_labels)
-# with open("./Saves/ConfusionMatrixes/ConfusionMatrix_Resnet_FGSM_Retrained_Model_5epochs_1times.pkl", "rb") as f:
-#     cm_resnet_Retrained_1times = pickle.load(f)
-#
-# with open("./Saves/ConfusionMatrixes/ConfusionMatrix_Resnet_FGSM_Retrained_Model_5epochs_2times.pkl", "rb") as f:
-#     cm_resnet_Retrained_2times = pickle.load(f)
-#
-# with open("./Saves/ConfusionMatrixes/ConfusionMatrix_Resnet_FGSM_Retrained_Model_5epochs_3times.pkl", "rb") as f:
-#     cm_resnet_Retrained_3times = pickle.load(f)
-#
-# with open("./Saves/ConfusionMatrixes/ConfusionMatrix_Resnet_FGSM_Retrained_Model_5epochs_4times.pkl", "rb") as f:
-#     cm_resnet_Retrained_4times = pickle.load(f)
-#
-# with open("./Saves/ConfusionMatrixes/ConfusionMatrix_Resnet_FGSM_Retrained_Model_5epochs_5times.pkl", "rb") as f:
-#     cm_resnet_Retrained_5times = pickle.load(f)
-# plot_confusion_matrix(cm_resnet_Retrained_5times,cm_plot_labels)
-# multi_cm_retrained_resnet = [cm_resnet_FGSM,
-#                         cm_resnet_Retrained_1times,
-#                          cm_resnet_Retrained_2times,
-#                          cm_resnet_Retrained_3times,
-#                          cm_resnet_Retrained_4times,
-#                          cm_resnet_Retrained_5times]
-# plot_graph(multi_cm_retrained_resnet, "Resnet retraining with 5 epochs", [0, 5, 10, 15, 20,25])
+plot_metrics(cm_InceptionV3,"Matrix without attack nor defenses",True,True,False)
+plot_metrics(cm_InceptionV3_FGSM,"Inception V3 FGSM",True,True,True)
+plot_metrics(cm_InceptionV3_FGSM_Before_Flipped_Compressed,"Inception V3 FGSM second version",True,True,True)
+plot_metrics(cm_InceptionV3_FGSM_Flipped_Compressed,"Inception V3 FGSM second version after Flipping and compressing",True,True,True)
 
