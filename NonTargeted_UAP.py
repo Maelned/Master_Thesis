@@ -9,7 +9,7 @@ from sklearn.metrics import confusion_matrix
 import pickle
 import os
 tf.compat.v1.disable_eager_execution()
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str, default='chestx')
 parser.add_argument('--model', type=str, default='inceptionv3')
@@ -26,6 +26,7 @@ validation_dataset = dataset + "Validation/"
 Test_dataset = dataset + "Test/"
 
 # Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
+model_test = load_model("./Saves/Models/InceptionV3_v3.h5")
 model = load_model("./Saves/Models/Retrained_model_v3_UAP_5epoch_8times.h5")
 
 test_datagen = ImageDataGenerator(
@@ -59,7 +60,7 @@ print("calculation data")
 
 
 
-classifier = KerasClassifier(model=model, use_logits=False)
+classifier = KerasClassifier(model=model_test, use_logits=False)
 
 adv_crafter = UniversalPerturbation(
     classifier=classifier,
@@ -84,10 +85,8 @@ for e in range(len(test_ds)):
 print("generate attack :")
 X_train = np.array(X_train)
 Y_train = np.array(Y_train)
-print(np.shape(X_train))
+
 _ = adv_crafter.generate(X_train,Y_train)
-prd = np.argmax(model.predict(test_ds,steps = test_ds.samples),axis = 1)
-print(prd)
 noise = adv_crafter.noise[0, :].astype(np.float32)
 
 # # Evaluate the ART classifier on adversarial examples
@@ -95,14 +94,14 @@ print(np.shape(X_train))
 prediction = np.argmax(classifier.predict(X_train), axis = 1)
 print(prediction)
 X_train_adv = X_train + noise
-
+# classifier = KerasClassifier(model=model, use_logits=False)
 prediction_adversarial = np.argmax(classifier.predict(X_train_adv), axis=1)
 
 cm_adv = confusion_matrix(test_ds.classes, prediction_adversarial)
 cm_adv = np.around(cm_adv, 2)
 print(cm_adv)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_Retrained_model_v3.pkl", 'wb') as f:
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_NonTargetedUAP_InceptionV3_v3.pkl", 'wb') as f:
     pickle.dump(cm_adv, f)
 
 rf_train = get_fooling_rate(preds=prediction, preds_adv=prediction_adversarial)

@@ -8,15 +8,15 @@ import pickle
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 # tf.compat.v1.disable_eager_execution()
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 dataset = "/home/ubuntu/Dataset/Dataset_Adversarial_Samples/Retraining_set/"
 Test_set = dataset + "Test/"
 # Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
 # #
 # Model_v1 = load_model("Saves/Models/InceptionV3_v3.h5")
 # model = load_model("./Saves/Models/Retrained_model_v3_5epoch_5times.h5")
-
-model = load_model("/home/ubuntu/Implementation_Kentin/Perf/ResNetV2.h5")
+model_test = load_model("./Saves/Models/InceptionV3_v3.h5")
+model = load_model("./Saves/Models/Retrained_model_v3_5epoch_5times.h5")
 
 models = [model]
 name_model = ["Resnet50"]
@@ -75,7 +75,7 @@ for model in models:
         i = next(test_ds)
         image = i[0]
         label = i[1]
-        adv_noise = create_adversarial_pattern(image,label,model)
+        adv_noise = create_adversarial_pattern(image,label,model_test)
         # construct the image adversary
         img_adv = (image + (adv_noise * eps))
         img_adv= tf.clip_by_value(img_adv, -1, 1)
