@@ -14,10 +14,9 @@ dataset = "/mnt/data/Dataset/ISIC2018V2/"
 training_dataset = dataset + "Training/"
 validation_dataset = dataset + "Validation/"
 test_dataset = dataset + "Test/"
-model = load_model("./Saves/Models/InceptionV3_v3.h5")
 
 loss_object = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
-
+Healthy_or_not = [0,0,1,1,0,1,1]
 epsilon = 2/255.
 labels = {"akiec" : [[1.,0.,0.,0.,0.,0.,0.]],
             "bcc" : [[0.,1.,0.,0.,0.,0.,0.]],
@@ -27,36 +26,59 @@ labels = {"akiec" : [[1.,0.,0.,0.,0.,0.,0.]],
             "nv"  : [[0.,0.,0.,0.,0.,1.,0.]],
             "vasc": [[0.,0.,0.,0.,0.,0.,1.]]
         }
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3.pkl", "rb") as f:
+    cm_InceptionV3= pickle.load(f)
 
 
-test_datagen = ImageDataGenerator(
-    rescale=1. / 255.,
-    featurewise_center=False,  # set input mean to 0 over the dataset
-    samplewise_center=False,  # set each sample mean to 0
-    featurewise_std_normalization=False,  # divide inputs by std of the dataset
-    samplewise_std_normalization=False,  # divide each input by its std
-    zca_whitening=False,  # apply ZCA whitening
-)
+def modif_cm(confusion_matrix):
+    new_confusion_matrix = []
 
-test_ds = test_datagen.flow_from_directory(
-    test_dataset,
-    target_size=(299, 299),
-    color_mode="rgb",
-    classes=None,
-    class_mode="categorical",
-    batch_size=1,
-    shuffle=False,
-    seed=False,
-    interpolation="bilinear",
-    follow_links=False)
+    Healthy= 0
+    Healthy_as_Cancerous = 0
+    Healthy_as_Healthy = 0
+    Cancerous = 0
+    Cancerous_as_Healthy = 0
+    Cancerous_as_Cancerous = 0
+
+    for label in range(len(confusion_matrix)):
+        row = confusion_matrix[label, :]
+        if Healthy_or_not[label]:
+            for i in range(len(row)):
+                if i == label:
+                    Healthy += row[i]
+                else:
+                    if Healthy_or_not[i]:
+                        Healthy_as_Healthy += row[i]
+                    else:
+                        Healthy_as_Cancerous += row[i]
+        else:
+            for i in range(len(row)):
+                if i == label:
+                    Cancerous += row[i]
+                else:
+                    if Healthy_or_not[i]:
+                        Cancerous_as_Healthy += row[i]
+                    else:
+                        Cancerous_as_Cancerous += row[i]
+        List_Healthy = [Healthy,Healthy_as_Healthy,Healthy_as_Cancerous]
+        List_Cancerous = [Cancerous,Cancerous_as_Healthy,Cancerous_as_Cancerous]
+        new_confusion_matrix = [List_Healthy,List_Cancerous]
+        new_confusion_matrix = np.array(new_confusion_matrix)
+    return new_confusion_matrix
 
 
-Y_pred = model.predict_generator(test_ds, steps=test_ds.samples / 1)
-y_pred = np.argmax(Y_pred, axis=1)
+print(cm_InceptionV3)
+new_cm_InceptionV3 = modif_cm(cm_InceptionV3)
+print(new_cm_InceptionV3)
 
-cm = confusion_matrix(test_ds.classes, y_pred)
-cm = np.around(cm, 2)
+import matplotlib.pyplot as plt
 
-name_cm = "./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3.pkl"
-with open(name_cm, 'wb') as f:
-    pickle.dump(cm, f)
+fig, ax =plt.subplots(1,1)
+
+column_labels=["Correctly classified", "Classified as Healthy", "Classified as Cancerous"]
+row_labels = ["Healthy","Cancerous"]
+ax.axis('tight')
+ax.axis('off')
+ax.table(cellText=new_cm_InceptionV3,colLabels=column_labels,rowLabels=row_labels,loc="center")
+
+plt.show()

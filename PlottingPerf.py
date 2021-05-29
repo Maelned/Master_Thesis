@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 Dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\"
 Test_dir = Dataset + "ISIC2018V2\\Test\\"
 
-model = load_model("./Saves/Models/InceptionV3_v3.h5")
+# model = load_model("./Saves/Models/InceptionV3_v3.h5")
 cm_plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 
 
@@ -187,14 +187,29 @@ with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3.pkl", "rb") as 
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM.pkl", "rb") as f:
     cm_InceptionV3_FGSM = pickle.load(f)
 
-with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_Before_Flipped_Compressed.pkl", "rb") as f:
-    cm_InceptionV3_FGSM_Before_Flipped_Compressed = pickle.load(f)
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_Retrained_FGSM.pkl", "rb") as f:
+    cm_InceptionV3_Retrained_FGSM = pickle.load(f)
 
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_Compressed_Flipped.pkl", "rb") as f:
     cm_InceptionV3_FGSM_Flipped_Compressed = pickle.load(f)
 
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_Retrained_model_FGSM_Compressed_Flipped.pkl", "rb") as f:
+    cm_InceptionV3_Retrained_FGSM_Flipped_Compressed = pickle.load(f)
+
+with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_NonTargetedUAP.pkl", "rb") as f:
+    cm_InceptionV3_NonTargetedUAP = pickle.load(f)
+
 plot_metrics(cm_InceptionV3,"Matrix without attack nor defenses",True,True,False)
 plot_metrics(cm_InceptionV3_FGSM,"Inception V3 FGSM",True,True,True)
-plot_metrics(cm_InceptionV3_FGSM_Before_Flipped_Compressed,"Inception V3 FGSM second version",True,True,True)
-plot_metrics(cm_InceptionV3_FGSM_Flipped_Compressed,"Inception V3 FGSM second version after Flipping and compressing",True,True,True)
+plot_metrics(cm_InceptionV3_Retrained_FGSM,"Inception V3 FGSM afte Retraining",True,True,True)
+plot_metrics(cm_InceptionV3_FGSM_Flipped_Compressed,"Inception V3 FGSM after Flipping and compressing",True,True,True)
+plot_metrics(cm_InceptionV3_Retrained_FGSM_Flipped_Compressed,"Inception V3 FGSM after Retraining + Flipping and compressing",True,True,True)
+plot_metrics(cm_InceptionV3_NonTargetedUAP,"Inception V3 Non Targeted UAP",True,True,True)
 
+List_experiment = [cm_InceptionV3,
+                   cm_InceptionV3_FGSM,
+                   cm_InceptionV3_Retrained_FGSM,
+                   cm_InceptionV3_FGSM_Flipped_Compressed,
+                   cm_InceptionV3_Retrained_FGSM_Flipped_Compressed]
+
+plot_graph(List_experiment,"Different experiments",["Inceptionv3","FGSM","FGSM Retrained","FGSM LLT","FGSM LLT + Retrained"])

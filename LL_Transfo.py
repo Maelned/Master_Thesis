@@ -30,8 +30,8 @@ ISIC_dataset = "/mnt/data/Dataset/ISIC2018V2/Test/"
 FGSM_dataset = "/mnt/data/Dataset/LLT_Datasets/FGSM/"
 #Model trained
 
+model = load_model("./Saves/Models/Retrained_model_v3_5epoch_5times.h5")
 model = load_model("./Saves/Models/InceptionV3_v3.h5")
-
 loss_object = tf.keras.losses.CategoricalCrossentropy()
 
 epsilon = 2/255.
@@ -109,25 +109,9 @@ def FGSM_application():
     return cm_adv
 
 
-cm_adv = FGSM_application()
+# cm_adv = FGSM_application()
 
-with open("/home/ubuntu/Implementation_Mael/pythonProject1/Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3_FGSM_Before_Flipped_Compressed.pkl", 'wb') as f:
-    pickle.dump(cm_adv, f)
 Modified_dataset = "/mnt/data/Dataset/LLT_Datasets/FGSM/"
-dataset_mitigated= val_datagen_test.flow_from_directory(
-    Modified_dataset,
-    target_size=(299, 299),
-    color_mode="rgb",
-    classes=None,
-    class_mode="categorical",
-    batch_size=1,
-    shuffle=False,
-    seed=False,
-    interpolation="bilinear",
-    follow_links=False)
-
-
-
 
 classes = listdir(Modified_dataset)
 classes = sorted(classes)
