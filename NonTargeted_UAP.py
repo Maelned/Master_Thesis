@@ -27,7 +27,7 @@ Test_dataset = dataset + "Test/"
 
 # Test_set = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\Test\\"
 base_model = load_model("./Saves/Models/InceptionV3_v3.h5")
-model = load_model("./Saves/Models/Retrained_model_v3_5epoch_5times.h5")
+model = load_model("./Saves/Models/Retrained_model_v3_UAP_5epoch_8times.h5")
 
 
 test_datagen = ImageDataGenerator(
