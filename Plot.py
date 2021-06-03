@@ -3,19 +3,45 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 from collections import Counter, OrderedDict
 
-data_dir = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\HAM10K\\"
-data_dir5 = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ModifiedLabelsV2\\05 nv-bkl\\"
-data_dir10 = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ModifiedLabelsV2\\10 nv-bkl\\"
-data_dir15 = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ModifiedLabelsV2\\15 nv-bkl\\"
-data_dir20 = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ModifiedLabelsV2\\20 nv-bkl\\"
-label = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 
+dataset = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018V2\\"
+training_dataset = dataset + "Training\\"
+validation_dataset = dataset + "Validation\\"
+test_dataset = dataset + "Test\\"
+data_dir = "E:\\NTNU\\TTM4905 Communication Technology, Master's Thesis\\Code\\Dataset\\ISIC2018\\"
+
+label = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
+Healthy_or_not = [0, 0, 1, 1, 0, 0, 1]
+Healthy_counter = 0
+Cancerous_counter = 0
 datagen = ImageDataGenerator(
     rescale=1. / 255.,
 )
 
-dataset5 = datagen.flow_from_directory(
-    data_dir5,
+dataset_training = datagen.flow_from_directory(
+    training_dataset,
+    target_size=(224, 224),
+    color_mode="rgb",
+    classes=None,
+    class_mode="categorical",
+    batch_size=32,
+    shuffle=True,
+    seed=False,
+    interpolation="bilinear",
+    follow_links=False)
+dataset_validation = datagen.flow_from_directory(
+    validation_dataset,
+    target_size=(224, 224),
+    color_mode="rgb",
+    classes=None,
+    class_mode="categorical",
+    batch_size=32,
+    shuffle=True,
+    seed=False,
+    interpolation="bilinear",
+    follow_links=False)
+dataset_test = datagen.flow_from_directory(
+    test_dataset,
     target_size=(224, 224),
     color_mode="rgb",
     classes=None,
@@ -26,79 +52,38 @@ dataset5 = datagen.flow_from_directory(
     interpolation="bilinear",
     follow_links=False)
 
-dataset10 = datagen.flow_from_directory(
-    data_dir10,
-    target_size=(224, 224),
-    color_mode="rgb",
-    classes=None,
-    class_mode="categorical",
-    batch_size=32,
-    shuffle=True,
-    seed=False,
-    interpolation="bilinear",
-    follow_links=False)
+Labels_count_training = Counter(dataset_training.classes)
+Labels_count_validation = Counter(dataset_validation.classes)
+Labels_count_test = Counter(dataset_test.classes)
 
-dataset15 = datagen.flow_from_directory(
-    data_dir15,
-    target_size=(224, 224),
-    color_mode="rgb",
-    classes=None,
-    class_mode="categorical",
-    batch_size=32,
-    shuffle=True,
-    seed=False,
-    interpolation="bilinear",
-    follow_links=False)
+Labels_count_total = [Labels_count_training,Labels_count_validation,Labels_count_test]
 
-dataset20 = datagen.flow_from_directory(
-    data_dir20,
-    target_size=(224, 224),
-    color_mode="rgb",
-    classes=None,
-    class_mode="categorical",
-    batch_size=32,
-    shuffle=True,
-    seed=False,
-    interpolation="bilinear",
-    follow_links=False)
+for Labels_count in Labels_count_total:
+    Label_sorted = sorted(Labels_count.items(), key=operator.itemgetter(0),reverse=True)
+    # print(Label_sorted)
+    x,y = zip(*Label_sorted)
+    x = list(x)
+    y = list(y)
+    a = 0
+    for i in x:
+        x[a] = label[i]
+        if Healthy_or_not[i]:
+            Healthy_counter += y[a]
+        else:
+            Cancerous_counter += y[a]
+        a += 1
 
-dataset = datagen.flow_from_directory(
-    data_dir,
-    target_size=(224, 224),
-    color_mode="rgb",
-    classes=None,
-    class_mode="categorical",
-    batch_size=32,
-    shuffle=True,
-    seed=False,
-    interpolation="bilinear",
-    follow_links=False)
+print(Healthy_counter)
+print(Cancerous_counter)
 
+print(Healthy_counter + Cancerous_counter)
+Labels = ["Healthy","Cancerous"]
+data = [Healthy_counter,Cancerous_counter]
+color = ["tab:green","tab:red"]
+explode = [ 0.05,0.05]
+# Creating plot
+fig = plt.figure(figsize=(6, 6))
+plt.pie(data, labels=Labels,explode = explode,colors = color, autopct="%.1f%%",textprops={'fontsize': 14})
 
-
-Labels_count = Counter(dataset5.classes)
-Label_sorted = sorted(Labels_count.items(), key=operator.itemgetter(1),reverse=True)
-x,y = zip(*Label_sorted)
-
-print(x,y)
-x = list(x)
-Modified = [0,335,0,0,0,0,0]
-y = list(y)
-y[1] = y[1] - 335
-a = 0
-for i in x:
-    x[a] = label[i]
-    a += 1
-
-print(x)
-index = range(len(x))
-index2 = range(len(y))
-plt.ylim([0,6800])
-my_colors = ["tab:blue","tab:orange","tab:green","tab:red","tab:purple","tab:brown","tab:pink"]
-# s = pd.Series(y, index=x)
-#
-# s.plot(kind='bar',rot=0)
-plt.bar(x,y,color=my_colors,width=0.5)
-plt.bar(x,Modified,color = "tab:blue", bottom=y,width=0.5)
-plt.title('Classes distribution with 5% of NV in BKL')
+# show plot
 plt.show()
