@@ -128,13 +128,14 @@ def plot_metrics(cm, title, plot_cm, verbose, Attack):
     if len(cm) == 2:
         if plot_cm:
             plot_confusion_matrix(cm, cm_plot_labels_healthy, title)
-        Accuracy, Recall, NPV = metrics_healthy(cm)
+        Accuracy, Recall, NPV,FNR = metrics_healthy(cm)
 
         if verbose:
             print("Title : ", title)
             print("Accuracy :", Accuracy)
             print("Recall : ", Recall)
             print("NPV : ", NPV)
+            print("FNR: ", FNR)
             print("\n")
     else:
         if plot_cm:
@@ -255,7 +256,7 @@ def plot_confusion_matrix(cm, classes,
 
 
 history = np.load('Saves/Hitsory/history_InceptionV3_v3.npy', allow_pickle='TRUE').item()
-plot_curves(history)
+# plot_curves(history)
 
 with open("./Saves/ConfusionMatrixes/ConfusionMatrix_InceptionV3.pkl", "rb") as f:
     cm_InceptionV3 = pickle.load(f)
@@ -296,6 +297,7 @@ with open("./Saves/ConfusionMatrixes/CM_Inception_UAP_Compressed_Flipped.pkl", "
 # plot_metrics(cm_InceptionV3_UAP_RT_LLT,"Inception V3 Non Targeted UAP",True,True,True)
 
 
+
 experiences = ["InceptionV3", "FGSM attack", "Retraining defense", "LLT Defense", "LLT+Retrain Defense"]
 List_FGSM = [cm_InceptionV3,
              cm_InceptionV3_FGSM,
@@ -311,14 +313,14 @@ List_UAP = [cm_InceptionV3,
             cm_InceptionV3_UAP_RT,
             cm_InceptionV3_UAP_LLT,
             cm_InceptionV3_UAP_RT_LLT]
-plot_graph(List_UAP,"",experiences)
+# plot_graph(List_UAP,"",experiences)
 
 
 experiences_Healthy = ["InceptionV3", "UAP attack", "Retraining defense", "LLT Defense", "LLT+Retrain Defense"]
 
 # plot_metrics(cm_InceptionV3, "Inception V3", True, True, False)
 cm_InceptionV3_Health = modif_cm(cm_InceptionV3)
-print(cm_InceptionV3_Health)
+
 # plot_metrics(cm_InceptionV3_Health, "Inception V3 Health oriented", True, True, False)
 
 
@@ -344,12 +346,12 @@ List_UAP_Health = [cm_InceptionV3_Health,
                    cm_InceptionV3_UAP_LLT_Health,
                    cm_InceptionV3_UAP_RT_LLT_Health]
 
-# a = 0
-# for i in List_FGSM_Health:
-#     plot_metrics(i,experiences_Healthy[a],True,True,True)
-#     a+=1
+a = 0
+for i in List_UAP_Health:
+    plot_metrics(i,experiences_Healthy[a],True,True,True)
+    a+=1
 
-plot_graph_healthy(List_UAP_Health,"",experiences_Healthy)
+# plot_graph_healthy(List_UAP_Health,"",experiences_Healthy)
 # ************************************** FGSM **********************************************
 # plot_metrics(cm_InceptionV3_FGSM, "Inception V3 FGSM", True, True, True)
 # new_cm = modif_cm(cm_InceptionV3_FGSM)
@@ -360,8 +362,8 @@ plot_graph_healthy(List_UAP_Health,"",experiences_Healthy)
 # plot_metrics(new_cm, "Inception V3 FGSM Retrained Health oriented", True, True, True)
 #
 # plot_metrics(cm_InceptionV3_FGSM_LLT, "Inception V3 FGSM LLT", True, True, True)
-# new_cm = modif_cm(cm_InceptionV3_FGSM_LLT)
-# plot_metrics(new_cm, "Inception V3 FGSM LLT Health oriented", True, True, True)
+new_cm = modif_cm(cm_InceptionV3_FGSM_LLT)
+plot_metrics(new_cm, "Inception V3 FGSM LLT Health oriented", True, True, True)
 #
 # plot_metrics(cm_InceptionV3_FGSM_RT_LLT, "Inception V3 FGSM RT + LLT", True, True, True)
 # new_cm = modif_cm(cm_InceptionV3_FGSM_RT_LLT)
